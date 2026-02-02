@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Curso Interactivo de Programación</title>
+
+<style>
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg, #0b0014, #1a0033);
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.contenedor {
+    background-color: #12001f;
+    border: 2px solid #6a0dad;
+    padding: 35px;
+    border-radius: 16px;
+    width: 650px;
+    box-shadow: 0 0 35px rgba(106, 13, 173, 0.5);
+}
+
+h1 {
+    text-align: center;
+    color: #d9b8ff;
+    margin-bottom: 10px;
+}
+
+.contador {
+    text-align: center;
+    font-size: 14px;
+    color: #b98cff;
+    margin-bottom: 10px;
+}
+
+.progreso {
+    width: 100%;
+    height: 10px;
+    background-color: #2a0044;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.progreso-barra {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #6a0dad, #b56cff);
+    transition: width 0.4s;
+}
+
+.pregunta {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    margin: 7px 0;
+    font-size: 15px;
+    border: 1px solid #6a0dad;
+    border-radius: 10px;
+    background-color: #1f0033;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #6a0dad;
+}
+
+.panel {
+    margin-top: 20px;
+    padding: 16px;
+    background-color: #1a002b;
+    border-left: 4px solid #6a0dad;
+    border-radius: 10px;
+    display: none;
+}
+
+.panel h3 {
+    margin-top: 0;
+    color: #cfa8ff;
+}
+
+.codigo {
+    background-color: #0f001a;
+    border: 1px solid #6a0dad;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 13px;
+    margin-top: 10px;
+    color: #e6d6ff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="contenedor" id="juego">
+    <h1>Curso Interactivo de Programación</h1>
+    <div class="contador" id="contador"></div>
+
+    <div class="progreso">
+        <div class="progreso-barra" id="barra"></div>
+    </div>
+
+    <div class="pregunta" id="pregunta"></div>
+    <div id="opciones"></div>
+
+    <div class="panel" id="panel"></div>
+    <button id="continuar" style="display:none;" onclick="siguiente()">Continuar</button>
+</div>
+
+<script>
+const preguntas = [
+{texto:"¿Qué es programar?",opciones:["Usar internet","Dar instrucciones a una computadora","Reparar PCs","Instalar apps"],correcta:1,teoria:"Programar es escribir instrucciones.",utilidad:"Permite que la computadora haga tareas automáticamente.",ejemplo:"console.log(\"Hola mundo\");"},
+{texto:"¿Qué es una variable?",opciones:["Un error","Un espacio para guardar datos","Un bucle","Un comentario"],correcta:1,teoria:"Una variable guarda información.",utilidad:"Permite reutilizar valores.",ejemplo:"let edad = 18;"},
+{texto:"¿Qué tipo de dato es un número?",opciones:["String","Boolean","Number","Array"],correcta:2,teoria:"Number representa valores numéricos.",utilidad:"Se usa para cálculos.",ejemplo:"let total = 10 + 5;"},
+{texto:"¿Qué tipo de dato es un texto?",opciones:["Boolean","String","Number","Loop"],correcta:1,teoria:"String almacena texto.",utilidad:"Guardar palabras o frases.",ejemplo:"let nombre = \"Ana\";"},
+{texto:"¿Para qué sirve if?",opciones:["Repetir código","Tomar decisiones","Guardar datos","Cerrar programa"],correcta:1,teoria:"if es una condición.",utilidad:"Ejecuta código si se cumple algo.",ejemplo:"if (edad >= 18) { console.log(\"OK\"); }"},
+{texto:"¿Qué es un bucle?",opciones:["Error","Condición","Repetición","Variable"],correcta:2,teoria:"Un bucle repite instrucciones.",utilidad:"Evita escribir código repetido.",ejemplo:"while(i < 5) { i++; }"},
+{texto:"¿Cuál es un bucle?",opciones:["if","for","let","print"],correcta:1,teoria:"for es un bucle.",utilidad:"Repite acciones controladas.",ejemplo:"for(let i=0;i<3;i++){console.log(i);}"},
+{texto:"¿Qué es boolean?",opciones:["Texto","Número","Verdadero o falso","Lista"],correcta:2,teoria:"Boolean tiene dos valores.",utilidad:"Sirve para condiciones.",ejemplo:"let activo = true;"},
+{texto:"¿Qué hace console.log()?",opciones:["Cierra navegador","Muestra mensajes","Guarda datos","Borra código"],correcta:1,teoria:"Muestra información.",utilidad:"Ayuda a depurar.",ejemplo:"console.log(total);"},
+{texto:"¿Qué es un error de sintaxis?",opciones:["Error lógico","Error al escribir","Virus","Variable"],correcta:1,teoria:"Error por escribir mal el código.",utilidad:"Debe corregirse para que funcione.",ejemplo:"let x = ;"},
+{texto:"¿Qué es un comentario?",opciones:["Código","Texto ignorado","Error","Variable"],correcta:1,teoria:"Comentarios no se ejecutan.",utilidad:"Explican el código.",ejemplo:"// Esto es un comentario"},
+{texto:"¿Para qué sirve let?",opciones:["Funciones","Variables","Bucles","Cerrar bloques"],correcta:1,teoria:"let declara variables.",utilidad:"Controla alcance.",ejemplo:"let x = 5;"},
+{texto:"¿Qué es una función?",opciones:["Variable","Bucle","Bloque reutilizable","Error"],correcta:2,teoria:"Función agrupa instrucciones.",utilidad:"Reutilizar código.",ejemplo:"function saludar(){console.log(\"Hola\");}"},
+{texto:"¿Para qué sirve return?",opciones:["Cerrar app","Devolver valor","Mostrar texto","Crear bucle"],correcta:1,teoria:"return devuelve datos.",utilidad:"Enviar resultados.",ejemplo:"return suma;"},
+{texto:"¿Qué es un array?",opciones:["Número","Texto","Lista","Error"],correcta:2,teoria:"Array guarda varios valores.",utilidad:"Manejar colecciones.",ejemplo:"let nums = [1,2,3];"},
+{texto:"¿Qué hace = ?",opciones:["Comparar","Asignar","Sumar","Restar"],correcta:1,teoria:"Asigna valores.",utilidad:"Guardar datos.",ejemplo:"x = 10;"},
+{texto:"¿Qué significa == ?",opciones:["Asignar","Comparar","Multiplicar","Dividir"],correcta:1,teoria:"Compara valores.",utilidad:"Evaluar igualdad.",ejemplo:"x == 5"},
+{texto:"¿Qué es depurar?",opciones:["Crear errores","Buscar errores","Borrar código","Ejecutar"],correcta:1,teoria:"Depurar es corregir errores.",utilidad:"Mejorar programas.",ejemplo:"console.log(x);"},
+{texto:"¿Qué es HTML?",opciones:["Lenguaje de estilos","Lenguaje de programación","Lenguaje de marcado","Sistema"],correcta:2,teoria:"HTML estructura páginas.",utilidad:"Crear webs.",ejemplo:"<h1>Título</h1>"},
+{texto:"¿Qué es JavaScript?",opciones:["HTML","CSS","Lenguaje de programación","Servidor"],correcta:2,teoria:"JS da lógica a la web.",utilidad:"Interactividad.",ejemplo:"alert(\"Hola\");"}
+];
+
+let i = 0, puntaje = 0;
+
+function mostrar(){
+    document.getElementById("panel").style.display="none";
+    document.getElementById("continuar").style.display="none";
+    document.getElementById("contador").textContent = `Lección ${i+1} de ${preguntas.length}`;
+    document.getElementById("barra").style.width = (i/preguntas.length*100)+"%";
+
+    const p = preguntas[i];
+    document.getElementById("pregunta").textContent = p.texto;
+    const op = document.getElementById("opciones");
+    op.innerHTML="";
+
+    p.opciones.forEach((o,j)=>{
+        const b=document.createElement("button");
+        b.textContent=o;
+        b.onclick=()=>responder(j);
+        op.appendChild(b);
+    });
+}
+
+function responder(r){
+    const p = preguntas[i];
+    document.getElementById("opciones").innerHTML="";
+    if(r===p.correcta) puntaje++;
+
+    const panel=document.getElementById("panel");
+    panel.innerHTML=`
+        <h3>Concepto</h3><p>${p.teoria}</p>
+        <h3>¿Para qué sirve?</h3><p>${p.utilidad}</p>
+        <h3>Ejemplo</h3><div class="codigo">${p.ejemplo}</div>`;
+    panel.style.display="block";
+    document.getElementById("continuar").style.display="block";
+}
+
+function siguiente(){
+    i++;
+    if(i<preguntas.length) mostrar();
+    else document.getElementById("juego").innerHTML=`
+        <h1>Curso completado</h1>
+        <p>Puntaje: ${puntaje} de ${preguntas.length}</p>
+        <button onclick="location.reload()">Reiniciar</button>`;
+}
+
+mostrar();
+</script>
+
+</body>
+</html>
