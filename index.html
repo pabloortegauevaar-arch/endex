@@ -8,7 +8,7 @@
 body{
 margin:0;
 font-family:Arial;
-background:radial-gradient(circle,#1c002b,#000);
+background:radial-gradient(circle,#2b0050,#000);
 color:white;
 min-height:100vh;
 }
@@ -29,15 +29,15 @@ padding:40px;
 
 .courses{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:30px;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:25px;
 margin-top:40px;
 }
 
 .card{
-background:#2b003f;
-padding:40px;
-border-radius:20px;
+background:#3b0060;
+padding:35px;
+border-radius:25px;
 font-size:22px;
 text-align:center;
 cursor:pointer;
@@ -46,162 +46,154 @@ transition:.2s;
 
 .card:hover{transform:scale(1.05)}
 
-button{
-background:#7b00ff;
-border:none;
-color:white;
-padding:15px 40px;
-border-radius:20px;
-font-size:18px;
-cursor:pointer;
-margin-top:20px;
-}
-
 .quiz{
 max-width:900px;
 margin:auto;
-padding:50px;
+padding:40px;
 }
 
 .answers button{
 width:100%;
-margin:10px 0;
+margin:12px 0;
+}
+
+button{
+background:#8c00ff;
+border:none;
+color:white;
+padding:15px 40px;
+border-radius:25px;
+font-size:18px;
+cursor:pointer;
+}
+
+.result{
+font-size:30px;
 }
 </style>
 </head>
 
 <body>
 
+<!-- MENU -->
 <div id="menu" class="menu">
-<h1>Selecciona Curso</h1>
+<h1>Selecciona Lenguaje</h1>
 
 <div class="courses">
-<div class="card" onclick="start('Python')">Python</div>
-<div class="card" onclick="start('JavaScript')">JavaScript</div>
-<div class="card" onclick="start('HTML')">HTML</div>
-<div class="card" onclick="start('MySQL')">MySQL</div>
+<div class="card" onclick="selectLang('Python')">Python</div>
+<div class="card" onclick="selectLang('JavaScript')">JavaScript</div>
+<div class="card" onclick="selectLang('HTML')">HTML</div>
+<div class="card" onclick="selectLang('MySQL')">MySQL</div>
 </div>
 </div>
 
+<!-- LEVEL -->
+<div id="levels" class="menu hidden">
+<h1>Selecciona Nivel</h1>
+
+<div class="courses">
+<div class="card" onclick="startQuiz('facil')">Fácil</div>
+<div class="card" onclick="startQuiz('medio')">Medio</div>
+<div class="card" onclick="startQuiz('dificil')">Difícil</div>
+</div>
+</div>
+
+<!-- QUIZ -->
 <div id="quiz" class="quiz hidden">
 <h2 id="title"></h2>
 <h3 id="question"></h3>
 
-<div class="answers" id="answers"></div>
+<div id="answers" class="answers"></div>
 
 <button onclick="next()">Siguiente</button>
 </div>
 
+<!-- RESULT -->
 <div id="result" class="center hidden">
-<h1 id="score"></h1>
+<h1 id="final"></h1>
 <button onclick="location.reload()">Volver</button>
 </div>
 
 <script>
 
-const data={
-Python:[
-["¿Qué imprime print(2+2)?",["3","4","5","6"],1],
-["¿Cómo se declara función?",["func","def","function","lambda"],1],
-["Lista se crea con?",["()","{}","[]","<>"],2],
-["Boolean verdadero?",["true","True","1","yes"],1],
-["Comentario?",["//","#","<!--","**"],1],
-["Input?",["read","cin","input","scan"],2],
-["Extensión python?",[".js",".py",".html",".exe"],1],
-["Loop?",["for","repeat","loop","each"],0],
-["Variable?",["var","let","x=5","int"],2],
-["Imprimir texto?",["echo","print","cout","say"],1]
+const preguntas={
+Python:{
+facil:[
+["print sirve?",["mostrar","guardar","borrar","cerrar"],0],
+["Lista?",["[]","{}","()","<>"],0],
+["True es?",["texto","bool","numero","lista"],1],
+["Extensión?",[".js",".py",".exe",".html"],1],
+["Comentario?",["//","#","--","**"],1],
+["Variable?",["x=5","var","let","int"],0],
+["Loop?",["for","each","repeat","cycle"],0],
+["Input?",["read","input","cin","scan"],1],
+["Función?",["def","func","method","run"],0],
+["Boolean falso?",["false","False","0","no"],1]
 ],
+medio:[], dificil:[]
+},
 
-JavaScript:[
-["Archivo JS?",[".py",".js",".html",".css"],1],
-["Variable?",["var","let","ambas","ninguna"],2],
-["Alert?",["msg()","alert()","print()","show()"],1],
-["Loop?",["for","repeat","each","cycle"],0],
-["Objeto?",["[]","{}","()","<>"],1],
-["Evento click?",["onClick","click","press","touch"],0],
-["DOM?",["estructura","modelo","diseño","objeto"],1],
-["Console?",["print","log","show","write"],1],
-["Boolean?",["true","yes","1","ok"],0],
-["Función?",["func","def","function","method"],2]
-],
-
-HTML:[
-["Significa?",["lenguaje","marcado","script","estilo"],1],
-["Título?",["<p>","<h1>","<title>","<div>"],1],
-["Imagen?",["<img>","<src>","<pic>","<photo>"],0],
-["Link?",["<a>","<link>","<href>","<url>"],0],
-["Lista?",["<ol>","<li>","ambas","ninguna"],2],
-["Formulario?",["<input>","<form>","<field>","<box>"],1],
-["Tabla?",["<tab>","<tr>","<table>","<td>"],2],
-["Negrita?",["<b>","<bold>","<strong>","ambas"],3],
-["Div?",["contenedor","texto","imagen","tabla"],0],
-["HTML significa?",["Hyper","High","Hard","Host"],0]
-],
-
-MySQL:[
-["Es?",["lenguaje","bd","editor","framework"],1],
-["SELECT sirve?",["insertar","leer","borrar","crear"],1],
-["Tabla?",["row","col","table","data"],2],
-["Insert?",["ADD","PUT","INSERT","NEW"],2],
-["Eliminar?",["DROP","DELETE","REMOVE","CLEAR"],1],
-["Condición?",["IF","WHERE","WHEN","CASE"],1],
-["Ordenar?",["SORT","ORDER","GROUP","ALIGN"],1],
-["Actualizar?",["CHANGE","UPDATE","MOD","EDIT"],1],
-["Clave primaria?",["PK","ID","KEY","MAIN"],0],
-["Base datos?",["db","sql","mysql","table"],0]
-]
+JavaScript:{facil:[],medio:[],dificil:[]},
+HTML:{facil:[],medio:[],dificil:[]},
+MySQL:{facil:[],medio:[],dificil:[]}
 };
 
-let lang="",list=[],i=0,score=0;
+Object.keys(preguntas).forEach(l=>{
+["medio","dificil"].forEach(n=>{
+preguntas[l][n]=JSON.parse(JSON.stringify(preguntas[l].facil));
+});
+});
 
-function start(l){
-lang=l;
-document.getElementById("menu").classList.add("hidden");
-document.getElementById("quiz").classList.remove("hidden");
+let lenguaje="",nivel="",lista=[],i=0,puntos=0;
 
-list=[...data[l]].sort(()=>Math.random()-0.5);
-i=0;score=0;
-
-show();
+function selectLang(l){
+lenguaje=l;
+menu.classList.add("hidden");
+levels.classList.remove("hidden");
 }
 
-function show(){
-document.getElementById("title").innerText=lang+" Quiz";
-document.getElementById("question").innerText=list[i][0];
+function startQuiz(n){
+nivel=n;
+levels.classList.add("hidden");
+quiz.classList.remove("hidden");
 
-let a=document.getElementById("answers");
-a.innerHTML="";
+lista=[...preguntas[lenguaje][nivel]].sort(()=>Math.random()-0.5);
+i=0;puntos=0;
+mostrar();
+}
 
-list[i][1].forEach((x,n)=>{
+function mostrar(){
+title.innerText=lenguaje.toUpperCase()+" - "+nivel.toUpperCase();
+question.innerText=lista[i][0];
+answers.innerHTML="";
+
+lista[i][1].forEach((x,n)=>{
 let b=document.createElement("button");
-b.innerText=x;
-b.onclick=()=>check(n);
-a.appendChild(b);
+b.textContent=x;
+b.onclick=()=>responder(n);
+answers.appendChild(b);
 });
 }
 
-function check(n){
-if(n===list[i][2]) score++;
+function responder(n){
+if(n===lista[i][2]) puntos++;
 }
 
 function next(){
 i++;
-if(i>=10){
-finish();
-}else show();
+if(i>=10) finalizar();
+else mostrar();
 }
 
-function finish(){
-document.getElementById("quiz").classList.add("hidden");
-document.getElementById("result").classList.remove("hidden");
+function finalizar(){
+quiz.classList.add("hidden");
+result.classList.remove("hidden");
 
-let estado=score>=6?"APROBADO":"REPROBADO";
-
-document.getElementById("score").innerText=
-"Puntaje: "+score+"/10\n"+estado;
+let estado=puntos>=6?"APROBADO":"REPROBADO";
+final.innerText=${estado}\n\n${puntos}/10;
 }
 
 </script>
+
 </body>
 </html>
