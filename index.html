@@ -2,45 +2,47 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Endex Quiz</title>
+<title>Endex Programación</title>
 
 <style>
 body{
 margin:0;
 font-family:Arial;
-background:radial-gradient(circle,#2b0050,#000);
+background:radial-gradient(circle,#3b0070,#000);
 color:white;
 min-height:100vh;
 }
 
 .hidden{display:none}
 
-.menu,.quiz{
-padding:40px;
-max-width:1000px;
+section{
+max-width:1100px;
 margin:auto;
+padding:40px;
 }
 
-.courses{
+.grid{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
 gap:25px;
 margin-top:40px;
 }
 
 .card{
-background:#3b0060;
+background:#4a007a;
 padding:35px;
 border-radius:25px;
-font-size:22px;
 text-align:center;
+font-size:22px;
 cursor:pointer;
+transition:.2s;
 }
+
+.card:hover{transform:scale(1.05)}
 
 .answers button{
 width:100%;
 margin:10px 0;
-background:#4d0077;
 }
 
 .answers button.active{
@@ -48,109 +50,106 @@ background:#00c853;
 }
 
 button{
-background:#8c00ff;
+background:#9a00ff;
 border:none;
 color:white;
-padding:15px 40px;
-border-radius:25px;
+padding:15px;
+border-radius:20px;
 font-size:18px;
 cursor:pointer;
 margin-top:20px;
+width:100%;
 }
 
-.result{
-text-align:center;
-padding-top:150px;
-font-size:30px;
-}
+h1{text-align:center}
 </style>
 </head>
 
 <body>
 
-<div id="menu" class="menu">
-<h1>Selecciona Lenguaje</h1>
-<div class="courses">
-<div class="card" onclick="selectLang('Python')">Python</div>
-<div class="card" onclick="selectLang('JavaScript')">JavaScript</div>
-<div class="card" onclick="selectLang('HTML')">HTML</div>
-<div class="card" onclick="selectLang('MySQL')">MySQL</div>
+<section id="menu">
+<h1>Selecciona Curso</h1>
+<div class="grid">
+<div class="card" onclick="chooseCourse('Python')">Python</div>
+<div class="card" onclick="chooseCourse('JavaScript')">JavaScript</div>
+<div class="card" onclick="chooseCourse('HTML')">HTML</div>
+<div class="card" onclick="chooseCourse('MySQL')">MySQL</div>
 </div>
-</div>
+</section>
 
-<div id="levels" class="menu hidden">
+<section id="levels" class="hidden">
 <h1>Selecciona Nivel</h1>
-<div class="courses">
-<div class="card" onclick="startQuiz('facil')">Fácil</div>
-<div class="card" onclick="startQuiz('medio')">Medio</div>
-<div class="card" onclick="startQuiz('dificil')">Difícil</div>
+<div class="grid">
+<div class="card" onclick="start('facil')">Fácil</div>
+<div class="card" onclick="start('medio')">Medio</div>
+<div class="card" onclick="start('dificil')">Difícil</div>
 </div>
-</div>
+<button onclick="backMenu()">Volver</button>
+</section>
 
-<div id="quiz" class="quiz hidden">
+<section id="quiz" class="hidden">
 <h2 id="title"></h2>
 <h3 id="question"></h3>
 <div id="answers" class="answers"></div>
 <button onclick="next()">Siguiente</button>
-</div>
+</section>
 
-<div id="result" class="result hidden">
+<section id="result" class="hidden">
 <h1 id="final"></h1>
-<button onclick="location.reload()">Volver</button>
-</div>
+<button onclick="location.reload()">Volver al inicio</button>
+</section>
 
 <script>
 
-const data={
-Python:[
-["print hace?",["mostrar","guardar","cerrar","borrar"],0],
+const base=[
+["¿Para imprimir?",["print()","show()","echo()","write()"],0],
+["Boolean verdadero?",["True","1","yes","on"],0],
 ["Lista?",["[]","{}","()","<>"],0],
-["Boolean?",["True","5","hola","[]"],0],
-["Extensión?",[".py",".js",".html",".exe"],0],
-["Comentario?",["#","//","--","**"],0],
-["Función?",["def","run","func","method"],0],
-["Entrada?",["input","read","cin","scan"],0],
-["Loop?",["for","repeat","each","cycle"],0],
-["Variable?",["x=5","var","let","int"],0],
-["False es?",["boolean","texto","numero","lista"],0]
-]
-};
+["Comentario Python?",["#","//","--","**"],0],
+["Variable?",["x=5","let","var","int"],0],
+["Bucle?",["for","loop","repeat","cycle"],0],
+["Función?",["def","func","method","run"],0],
+["Entrada?",["input()","scan()","read()","cin"],0],
+["Extensión?",[".py",".js",".exe",".html"],0],
+["False es?",["boolean","string","number","array"],0]
+];
 
-let lang="",level="",questions=[],i=0,score=0,selected=null;
+let course="",level="",questions=[],pos=0,score=0,selected=null;
 
-function selectLang(l){
-lang=l;
+function chooseCourse(c){
+course=c;
 menu.classList.add("hidden");
 levels.classList.remove("hidden");
 }
 
-function startQuiz(l){
+function start(l){
 level=l;
 levels.classList.add("hidden");
 quiz.classList.remove("hidden");
 
-questions=[...data.Python].sort(()=>Math.random()-0.5);
-i=0;
+questions=[...base].sort(()=>Math.random()-0.5);
+pos=0;
 score=0;
+
 load();
 }
 
 function load(){
 selected=null;
-title.innerText=${lang} - ${level.toUpperCase()};
-question.innerText=questions[i][0];
+title.innerText=${course} - ${level.toUpperCase()} (${pos+1}/10);
+question.innerText=questions[pos][0];
 answers.innerHTML="";
 
-questions[i][1].forEach((a,n)=>{
+questions[pos][1].forEach((t,i)=>{
 let b=document.createElement("button");
-b.innerText=a;
-b.onclick=()=>choose(b,n);
+b.innerText=t;
+b.onclick=()=>pick(b,i);
 answers.appendChild(b);
 });
 }
 
-function choose(btn,n){
-selected=n;
+function pick(btn,i){
+selected=i;
 document.querySelectorAll(".answers button").forEach(b=>b.classList.remove("active"));
 btn.classList.add("active");
 }
@@ -158,15 +157,15 @@ btn.classList.add("active");
 function next(){
 
 if(selected===null){
-alert("Selecciona una respuesta");
+alert("Selecciona una opción");
 return;
 }
 
-if(selected===questions[i][2]) score++;
+if(selected===questions[pos][2]) score++;
 
-i++;
+pos++;
 
-if(i>=10) finish();
+if(pos>=10) finish();
 else load();
 }
 
@@ -175,7 +174,12 @@ quiz.classList.add("hidden");
 result.classList.remove("hidden");
 
 let estado=score>=6?"APROBADO":"REPROBADO";
-final.innerText=${estado}\n\nPuntaje: ${score}/10;
+final.innerText=${estado}\n\nResultado: ${score}/10;
+}
+
+function backMenu(){
+levels.classList.add("hidden");
+menu.classList.remove("hidden");
 }
 
 </script>
