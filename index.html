@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <title>Curso Programación</title>
@@ -7,47 +7,38 @@
 <style>
 body{
 margin:0;
-font-family:Arial;
 background:#1b0033;
 color:white;
+font-family:Arial;
 text-align:center;
 }
 
-h1{margin:20px}
-
-#menu,.levels,.quiz,.result{
-display:none;
-}
+section{display:none}
 
 button{
 padding:15px 30px;
-font-size:18px;
 margin:10px;
+font-size:18px;
 border:none;
 border-radius:10px;
-cursor:pointer;
 background:#7c3aed;
 color:white;
-}
-
-.container{
-max-width:900px;
-margin:auto;
+cursor:pointer;
 }
 
 .card{
 background:#2d0b52;
-padding:30px;
-margin:15px;
+margin:20px auto;
+padding:25px;
+width:300px;
 border-radius:20px;
 cursor:pointer;
-font-size:22px;
 }
 
-.options button{
+#quiz button{
 display:block;
 width:100%;
-margin:10px 0;
+margin:10px auto;
 background:#4c1d95;
 }
 
@@ -58,119 +49,136 @@ background:#4c1d95;
 
 <h1>Curso de Programación</h1>
 
-<div id="menu" class="container">
-<div class="card" onclick="selectCourse('Python')">🐍 Python</div>
-<div class="card" onclick="selectCourse('Java')">☕ Java</div>
-<div class="card" onclick="selectCourse('HTML')">🌐 HTML</div>
-</div>
+<section id="menu">
+<div class="card" data-course="Python">🐍 Python</div>
+<div class="card" data-course="Java">☕ Java</div>
+<div class="card" data-course="HTML">🌐 HTML</div>
+</section>
 
-<div id="levels" class="levels container">
-<h2 id="courseTitle"></h2>
-<button onclick="startQuiz('easy')">Básico</button>
-<button onclick="startQuiz('medium')">Medio</button>
-<button onclick="startQuiz('hard')">Difícil</button>
-</div>
+<section id="levels">
+<h2 id="title"></h2>
+<button data-level="easy">Básico</button>
+<button data-level="medium">Medio</button>
+<button data-level="hard">Difícil</button>
+</section>
 
-<div id="quiz" class="quiz container">
+<section id="quiz">
 <h2 id="question"></h2>
-<div class="options" id="options"></div>
-<button onclick="nextQuestion()">Siguiente</button>
-</div>
+<div id="answers"></div>
+<button id="next">Siguiente</button>
+</section>
 
-<div id="result" class="result container">
-<h2 id="score"></h2>
-<button onclick="location.reload()">Volver al menú</button>
-</div>
+<section id="result">
+<h2 id="final"></h2>
+<button onclick="location.reload()">Volver</button>
+</section>
 
 <script>
 
-document.getElementById("menu").style.display="block";
+const menu=document.getElementById("menu");
+const levels=document.getElementById("levels");
+const quiz=document.getElementById("quiz");
+const result=document.getElementById("result");
+
+menu.style.display="block";
 
 let course="";
-let questions=[];
 let index=0;
-let points=0;
+let score=0;
+let selected=null;
 
-const data={
+const db={
 Python:[
-{q:"¿Cómo imprimir?",a:["echo","print","cout","say"],c:1},
-{q:"Variable correcta",a:["1x","x=5","var x","int"],c:1},
-{q:"Comentario",a:["//","#","<!--","**"],c:1},
-{q:"Lista",a:["{}","()","[]","<>"],c:2},
-{q:"Boolean",a:["true","yes","1","ok"],c:0},
-{q:"Extensión",a:[".java",".py",".html",".js"],c:1},
-{q:"While es",a:["condición","bucle","función","array"],c:1},
-{q:"Input",a:["input()","scan()","read()","get()"],c:0},
-{q:"Float",a:["decimal","texto","lista","bool"],c:0},
-{q:"Def define",a:["clase","función","loop","if"],c:1}
+["¿Print sirve para?","Imprimir","Leer","Guardar","Nada",0],
+["Lista usa","()","[]","{}","<>",1],
+["Boolean","Texto","Número","True/False","Loop",2],
+["Input","scan","read","input","get",2],
+["Def crea","Clase","Función","Loop","Array",1],
+["Comentario","#","//","<!--","**",0],
+["While es","Clase","Bucle","Texto","Int",1],
+["Extensión",".py",".js",".java",".html",0],
+["Float","Decimal","Texto","Bool","Lista",0],
+["Variable","1x","x=5","int x","var",1]
 ],
+
 Java:[
-{q:"Clase principal",a:["main","start","run","go"],c:0},
-{q:"Extensión",a:[".py",".html",".java",".js"],c:2},
-{q:"System.out?",a:["leer","mostrar","guardar","sumar"],c:1},
-{q:"Int es",a:["texto","decimal","entero","bool"],c:2},
-{q:"Comentario",a:["#","//","<!--","**"],c:1},
-{q:"Array usa",a:["()","{}","[]","<>"],c:2},
-{q:"Public",a:["privado","visible","loop","if"],c:1},
-{q:"Boolean",a:["true/false","1/0","ok/no","si/no"],c:0},
-{q:"For es",a:["bucle","función","clase","print"],c:0},
-{q:"String es",a:["numero","texto","loop","if"],c:1}
+["System.out","Leer","Mostrar","Guardar","Nada",1],
+["Extensión",".java",".py",".html",".js",0],
+["Int","Texto","Decimal","Entero","Bool",3],
+["Comentario","//","#","<!--","**",0],
+["For","Función","Clase","Bucle","Array",2],
+["Boolean","true/false","si/no","ok/no","1/0",0],
+["String","Número","Texto","Loop","If",1],
+["Clase principal","main","start","run","go",0],
+["Public","Visible","Privado","Loop","Nada",0],
+["Array","()","[]","{}","<>",1]
 ],
+
 HTML:[
-{q:"Etiqueta base",a:["<body>","<html>","<head>","<div>"],c:1},
-{q:"Imagen",a:["<img>","<pic>","<src>","<image>"],c:0},
-{q:"Link",a:["<a>","<p>","<h1>","<span>"],c:0},
-{q:"Lista",a:["<ul>","<div>","<img>","<br>"],c:0},
-{q:"Negrita",a:["<b>","<i>","<u>","<p>"],c:0},
-{q:"Salto",a:["<br>","<hr>","<p>","<a>"],c:0},
-{q:"Título",a:["<h1>","<p>","<b>","<div>"],c:0},
-{q:"Tabla",a:["<table>","<tab>","<grid>","<row>"],c:0},
-{q:"Formulario",a:["<form>","<input>","<btn>","<data>"],c:0},
-{q:"Botón",a:["<button>","<click>","<press>","<go>"],c:0}
+["Base","html","body","head","div",0],
+["Imagen","img","pic","src","image",0],
+["Link","a","p","span","h1",0],
+["Lista","ul","div","img","br",0],
+["Negrita","b","i","u","p",0],
+["Salto","br","hr","p","a",0],
+["Título","h1","p","b","div",0],
+["Tabla","table","grid","tab","row",0],
+["Formulario","form","input","btn","data",0],
+["Botón","button","click","press","go",0]
 ]
 };
 
-function selectCourse(c){
-course=c;
-document.getElementById("menu").style.display="none";
-document.getElementById("levels").style.display="block";
-document.getElementById("courseTitle").innerText=c;
-}
+document.querySelectorAll(".card").forEach(c=>{
+c.addEventListener("click",()=>{
+course=c.dataset.course;
+menu.style.display="none";
+levels.style.display="block";
+document.getElementById("title").innerText=course;
+});
+});
+
+document.querySelectorAll("#levels button").forEach(b=>{
+b.addEventListener("click",startQuiz);
+});
 
 function startQuiz(){
-questions=[...data[course]].sort(()=>Math.random()-0.5);
+levels.style.display="none";
+quiz.style.display="block";
+questions=[...db[course]].sort(()=>Math.random()-0.5);
 index=0;
-points=0;
-document.getElementById("levels").style.display="none";
-document.getElementById("quiz").style.display="block";
-showQuestion();
+score=0;
+load();
 }
 
-function showQuestion(){
+function load(){
+selected=null;
 let q=questions[index];
-document.getElementById("question").innerText=q.q;
-let opt="";
-q.a.forEach((x,i)=>{
-opt+=<button onclick="answer(${i})">${x}</button>;
+document.getElementById("question").innerText=q[0];
+let html="";
+for(let i=1;i<=4;i++){
+html+=<button data-i="${i-1}">${q[i]}</button>;
+}
+document.getElementById("answers").innerHTML=html;
+
+document.querySelectorAll("#answers button").forEach(b=>{
+b.addEventListener("click",()=>{
+selected=parseInt(b.dataset.i);
 });
-document.getElementById("options").innerHTML=opt;
+});
 }
 
-function answer(i){
-if(i===questions[index].c) points++;
-}
-
-function nextQuestion(){
+document.getElementById("next").addEventListener("click",()=>{
+if(selected===questions[index][5]) score++;
 index++;
-if(index<questions.length) showQuestion();
-else finish();
-}
+if(index<10) load();
+else end();
+});
 
-function finish(){
-document.getElementById("quiz").style.display="none";
-document.getElementById("result").style.display="block";
-let pass=points>=7?"APROBADO":"REPROBADO";
-document.getElementById("score").innerText=${pass} — ${points}/10;
+function end(){
+quiz.style.display="none";
+result.style.display="block";
+let pass=score>=7?"APROBADO":"REPROBADO";
+document.getElementById("final").innerText=${pass} — ${score}/10;
 }
 
 </script>
