@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>Curso Programación</title>
@@ -11,149 +11,165 @@
 body{
 margin:0;
 font-family:Arial;
-background:#0b0014;
+background:#0c0016;
 color:white;
-text-align:center
 }
+
+h1{text-align:center}
+
+#login,#courses,#levels,#quiz,#result{
+display:none;
+padding:30px;
+min-height:100vh;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:25px;
+}
+
+.card{
+background:#1b002b;
+border-radius:15px;
+padding:20px;
+text-align:center;
+cursor:pointer;
+}
+
+.card img{
+width:80px;
+margin-bottom:10px;
+}
+
 button{
+padding:10px 20px;
 background:#7b2cff;
 border:none;
-padding:12px 20px;
-border-radius:8px;
+border-radius:10px;
 color:white;
+margin-top:15px;
 cursor:pointer;
-margin:6px
 }
-.card{
-background:#150022;
-padding:20px;
-margin:20px auto;
-max-width:500px;
-border-radius:15px
-}
-.hidden{display:none}
+
+#opts button{display:block;width:100%;margin:10px 0}
+
+.center{text-align:center}
 </style>
 </head>
 
 <body>
 
-<h1>🚀 Curso Programación</h1>
-
-<div id="loginDiv" class="card">
-<h2>Inicia sesión</h2>
+<div id="login" class="center">
+<h1>Iniciar sesión</h1>
 <button onclick="login()">Google</button>
 </div>
 
-<div id="menu" class="hidden card">
-<h2 id="user"></h2>
-<h3>Curso</h3>
-<button onclick="selectCourse('python')">Python</button>
-<button onclick="selectCourse('js')">JavaScript</button>
-<button onclick="selectCourse('html')">HTML</button>
-<button onclick="selectCourse('mysql')">MySQL</button>
+<div id="courses">
+<h1>Elige tu curso</h1>
+<div class="grid">
+<div class="card" onclick="pick('python')"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg"><h3>Python</h3></div>
+<div class="card" onclick="pick('js')"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"><h3>JavaScript</h3></div>
+<div class="card" onclick="pick('html')"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg"><h3>HTML</h3></div>
+<div class="card" onclick="pick('mysql')"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg"><h3>MySQL</h3></div>
+</div>
 </div>
 
-<div id="levels" class="hidden card">
-<h3>Nivel</h3>
-<button onclick="startQuiz('facil')">Fácil</button>
-<button onclick="startQuiz('medio')">Medio</button>
-<button onclick="startQuiz('dificil')">Difícil</button>
-<button onclick="startQuiz('extremo')">Extremo</button>
+<div id="levels" class="center">
+<h1>Nivel</h1>
+<button onclick="start('facil')">Fácil</button>
+<button onclick="start('medio')">Medio</button>
+<button onclick="start('dificil')">Difícil</button>
 </div>
 
-<div id="quiz" class="hidden card">
-<h3 id="q"></h3>
+<div id="quiz">
+<h2 id="question"></h2>
 <div id="opts"></div>
+<button onclick="next()">Siguiente</button>
 </div>
 
-<div id="result" class="hidden card"></div>
+<div id="result" class="center"></div>
 
 <script>
-const firebaseConfig = {
-apiKey: "AIzaSyBSZUyaUlEjhdc6vl-SsyZtEotOhFMNhBU",
-authDomain: "curso-programacion-d1921.firebaseapp.com",
-projectId: "curso-programacion-d1921",
-storageBucket: "curso-programacion-d1921.firebasestorage.app",
-messagingSenderId: "40569665582",
-appId: "1:40569665582:web:0b092ad0ce88737cdc87bf"
-};
+firebase.initializeApp({
+apiKey:"AIzaSyBSZUyaUlEjhdc6vl-SsyZtEotOhFMNhBU",
+authDomain:"curso-programacion-d1921.firebaseapp.com",
+projectId:"curso-programacion-d1921"
+});
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
+const auth=firebase.auth();
 
-let curso,nivel,preguntas=[],i=0,puntos=0;
-
-const banco=[
-{l:"python",n:"facil",q:"¿Qué imprime print(2+2)?",o:["4","22","Error"],r:0,p:5},
-{l:"python",n:"medio",q:"x=[1,2];print(len(x))",o:["1","2","Error"],r:1,p:5},
-{l:"js",n:"facil",q:"typeof 5 devuelve:",o:["number","string","int"],r:0,p:5},
-{l:"html",n:"facil",q:"Etiqueta principal:",o:["<body>","<head>","<main>"],r:0,p:5},
-{l:"mysql",n:"facil",q:"SELECT sirve para:",o:["Insertar","Leer","Borrar"],r:1,p:5},
-
-{l:"python",n:"dificil",q:"print([i for i in range(3)])",o:["0,1,2","[0,1,2]","error"],r:1,p:10},
-{l:"js",n:"medio",q:"let x=[]; console.log(x==true)",o:["true","false"],r:1,p:8},
-{l:"html",n:"medio",q:"display:flex pertenece a:",o:["HTML","CSS","JS"],r:1,p:8},
-{l:"mysql",n:"medio",q:"PRIMARY KEY:",o:["duplica","identifica","borra"],r:1,p:8},
-];
+auth.onAuthStateChanged(u=>{
+if(u){
+courses.style.display="block";
+}else login.style.display="block";
+});
 
 function login(){
-auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(r=>{
-document.getElementById("loginDiv").classList.add("hidden");
-document.getElementById("menu").classList.remove("hidden");
-document.getElementById("user").innerText=r.user.displayName;
+auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+}
+
+let curso,nivel,i=0,score=0,qs=[];
+
+const bank=[];
+["python","js","html","mysql"].forEach(l=>{
+["facil","medio","dificil"].forEach(n=>{
+for(let x=0;x<10;x++){
+bank.push({
+l,n,
+q:${l.toUpperCase()} ${n} pregunta ${x+1},
+o:["A","B","C","D"],
+r:Math.floor(Math.random()*4),
+p:10
 });
 }
+});
+});
 
-function selectCourse(c){
+function pick(c){
 curso=c;
-menu.classList.add("hidden");
-levels.classList.remove("hidden");
+courses.style.display="none";
+levels.style.display="block";
 }
 
-function startQuiz(n){
+function start(n){
 nivel=n;
-levels.classList.add("hidden");
-quiz.classList.remove("hidden");
+levels.style.display="none";
+quiz.style.display="block";
 
-preguntas=banco.filter(p=>p.l==curso&&p.n==nivel)
-.sort(()=>Math.random()-0.5);
+qs=bank.filter(x=>x.l==curso&&x.n==nivel).sort(()=>Math.random()-0.5);
 
-i=0;puntos=0;
+i=0;score=0;
 show();
 }
 
 function show(){
-if(i>=preguntas.length){finish();return;}
-q.innerText=preguntas[i].q;
+question.innerText=qs[i].q;
 opts.innerHTML="";
-preguntas[i].o.forEach((op,j)=>{
+qs[i].o.forEach((t,j)=>{
 let b=document.createElement("button");
-b.innerText=op;
-b.onclick=()=>answer(j);
+b.innerText=t;
+b.onclick=()=>{ if(j==qs[i].r)score+=qs[i].p; };
 opts.appendChild(b);
 });
 }
 
-function answer(j){
-if(j==preguntas[i].r)puntos+=preguntas[i].p;
-i++;show();
+function next(){
+i++;
+if(i>=qs.length)finish();
+else show();
 }
 
 function finish(){
-quiz.classList.add("hidden");
-result.classList.remove("hidden");
-
-let aprobado=puntos>=70;
+quiz.style.display="none";
+result.style.display="block";
+let ok=score>=70;
 
 result.innerHTML=`
-<h2>Puntaje: ${puntos}</h2>
-<h3>${aprobado?"APROBADO 🎉":"REPROBADO ❌"}</h3>
-<button onclick='location.reload()'>Volver</button>
+<h1>${ok?"APROBADO 🎉":"REPROBADO ❌"}</h1>
+<h2>${score} puntos</h2>
+<button onclick="location.reload()">Volver</button>
 `;
-
-let hist=JSON.parse(localStorage.getItem("hist")||"[]");
-hist.push({curso,nivel,puntos,fecha:new Date().toLocaleDateString()});
-localStorage.setItem("hist",JSON.stringify(hist));
 }
 </script>
 
