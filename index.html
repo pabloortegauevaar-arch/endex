@@ -2,115 +2,71 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Curso Programación</title>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<title>Quiz</title>
 
 <style>
 body{margin:0;background:#0c0016;color:white;font-family:Arial}
-section{display:none;padding:40px;min-height:100vh}
+section{padding:40px;min-height:100vh}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:25px}
 .card{background:#1b002b;padding:30px;border-radius:20px;text-align:center;cursor:pointer}
-.card img{width:90px}
-button{padding:12px 30px;border:none;border-radius:12px;background:#7b2cff;color:white;font-size:16px;margin:10px}
-.center{text-align:center}
-#quiz button{display:block;width:100%;margin:10px 0}
+button{padding:12px 30px;border:none;border-radius:12px;background:#7b2cff;color:white;margin:10px}
 </style>
 </head>
 
 <body>
 
-<section id="login" class="center">
-<h1>Iniciar sesión</h1>
-<button onclick="login()">Google</button>
-</section>
-
 <section id="courses">
 <h1>Selecciona Curso</h1>
+
 <div class="grid">
-<div class="card" onclick="pick('Python')"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg"><h3>Python</h3></div>
-<div class="card" onclick="pick('JavaScript')"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"><h3>JavaScript</h3></div>
-<div class="card" onclick="pick('HTML')"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg"><h3>HTML</h3></div>
-<div class="card" onclick="pick('MySQL')"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg"><h3>MySQL</h3></div>
+<div class="card" onclick="pick('Python')">Python</div>
+<div class="card" onclick="pick('JavaScript')">JavaScript</div>
+<div class="card" onclick="pick('HTML')">HTML</div>
+<div class="card" onclick="pick('MySQL')">MySQL</div>
 </div>
 </section>
 
-<section id="levels" class="center">
-<h1>Selecciona Nivel</h1>
-<button onclick="start('Fácil')">Fácil</button>
-<button onclick="start('Medio')">Medio</button>
-<button onclick="start('Difícil')">Difícil</button>
-</section>
-
-<section id="quiz">
-<h2 id="question"></h2>
-<div id="options"></div>
+<section id="quiz" style="display:none">
+<h2 id="q"></h2>
+<div id="o"></div>
 <button onclick="next()">Siguiente</button>
 </section>
 
-<section id="result" class="center"></section>
+<section id="result"></section>
 
 <script>
-firebase.initializeApp({
-apiKey:"AIzaSyBSZUyaUlEjhdc6vl-SsyZtEotOhFMNhBU",
-authDomain:"curso-programacion-d1921.firebaseapp.com",
-projectId:"curso-programacion-d1921"
-});
+let curso,p=0,score=0;
+const preguntas=[];
 
-firebase.auth().onAuthStateChanged(u=>{
-if(u){courses.style.display="block";}
-else login.style.display="block";
-});
+function pick(c){
+curso=c;
+courses.style.display="none";
+quiz.style.display="block";
 
-function login(){
-firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
-}
-
-let curso,nivel,p=0,score=0,quiz=[];
-
-function gen(){
-quiz=[];
 for(let i=1;i<=10;i++){
-quiz.push({
-q:${curso} ${nivel} pregunta ${i},
-o:["Opción A","Opción B","Opción C","Opción D"],
-r:Math.floor(Math.random()*4)
-});
-}
-quiz.sort(()=>Math.random()-0.5);
+preguntas.push({q:${curso} pregunta ${i},r:Math.floor(Math.random()*4)});
 }
 
-function pick(c){curso=c;courses.style.display="none";levels.style.display="block"}
-
-function start(n){
-nivel=n;levels.style.display="none";quizSec.style.display="block";
-gen();p=0;score=0;show();
+show();
 }
-
-const quizSec=document.getElementById("quiz");
 
 function show(){
-question.innerText=quiz[p].q;
-options.innerHTML="";
-quiz[p].o.forEach((t,i)=>{
+q.innerText=preguntas[p].q;
+o.innerHTML="";
+for(let i=0;i<4;i++){
 let b=document.createElement("button");
-b.innerText=t;
-b.onclick=()=>{if(i==quiz[p].r)score+=10};
-options.appendChild(b);
-});
+b.innerText="Respuesta "+(i+1);
+b.onclick=()=>{if(i==preguntas[p].r)score+=10};
+o.appendChild(b);
+}
 }
 
 function next(){
 p++;
-if(p>=quiz.length)finish();
-else show();
-}
-
-function finish(){
-quizSec.style.display="none";
-result.style.display="block";
-result.innerHTML=<h1>${score>=70?"APROBADO":"REPROBADO"}</h1><h2>Puntaje: ${score}</h2><button onclick="location.reload()">Volver</button>;
+if(p>=preguntas.length){
+quiz.style.display="none";
+result.innerHTML=<h1>Final</h1><h2>${score}</h2>;
+}else show();
 }
 </script>
 
