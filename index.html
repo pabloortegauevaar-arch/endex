@@ -70,17 +70,16 @@ border-radius:15px
 
 <script>
 const firebaseConfig = {
-apiKey: "AIzaSyBSZUyulUeJhdc6vl-SsyZtEoThEMNhBU",
+apiKey: "AIzaSyBSZUyaUlEjhdc6vl-SsyZtEotOhFMNhBU",
 authDomain: "curso-programacion-d1921.firebaseapp.com",
 projectId: "curso-programacion-d1921",
-storageBucket: "curso-programacion-d1921.appspot.com",
+storageBucket: "curso-programacion-d1921.firebasestorage.app",
 messagingSenderId: "40569665582",
-appId: "1:40569665582:web:0b09a2d0ce88737cdc87bf",
-measurementId: "G-54T0S7CPBB"
+appId: "1:40569665582:web:0b092ad0ce88737cdc87bf"
 };
 
 firebase.initializeApp(firebaseConfig);
-const auth=firebase.auth();
+const auth = firebase.auth();
 
 let curso,nivel,preguntas=[],i=0,puntos=0;
 
@@ -99,9 +98,9 @@ const banco=[
 
 function login(){
 auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(r=>{
-loginDiv.classList.add("hidden");
-menu.classList.remove("hidden");
-user.innerText=r.user.displayName;
+document.getElementById("loginDiv").classList.add("hidden");
+document.getElementById("menu").classList.remove("hidden");
+document.getElementById("user").innerText=r.user.displayName;
 });
 }
 
