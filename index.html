@@ -4,91 +4,51 @@
 <meta charset="UTF-8">
 <title>Curso Programación</title>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <style>
-body{
-margin:0;
-font-family:Arial;
-background:#0c0016;
-color:white;
-}
-
-h1{text-align:center}
-
-#login,#courses,#levels,#quiz,#result{
-display:none;
-padding:30px;
-min-height:100vh;
-}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:25px;
-}
-
-.card{
-background:#1b002b;
-border-radius:15px;
-padding:20px;
-text-align:center;
-cursor:pointer;
-}
-
-.card img{
-width:80px;
-margin-bottom:10px;
-}
-
-button{
-padding:10px 20px;
-background:#7b2cff;
-border:none;
-border-radius:10px;
-color:white;
-margin-top:15px;
-cursor:pointer;
-}
-
-#opts button{display:block;width:100%;margin:10px 0}
-
+body{margin:0;background:#0c0016;color:white;font-family:Arial}
+section{display:none;padding:40px;min-height:100vh}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:25px}
+.card{background:#1b002b;padding:25px;border-radius:15px;text-align:center;cursor:pointer}
+.card img{width:80px}
+button{padding:10px 25px;border:none;border-radius:10px;background:#7b2cff;color:white;margin-top:15px}
 .center{text-align:center}
 </style>
 </head>
 
 <body>
 
-<div id="login" class="center">
+<section id="login" class="center">
 <h1>Iniciar sesión</h1>
 <button onclick="login()">Google</button>
-</div>
+</section>
 
-<div id="courses">
-<h1>Elige tu curso</h1>
+<section id="courses">
+<h1>Selecciona Curso</h1>
 <div class="grid">
 <div class="card" onclick="pick('python')"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg"><h3>Python</h3></div>
 <div class="card" onclick="pick('js')"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"><h3>JavaScript</h3></div>
 <div class="card" onclick="pick('html')"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg"><h3>HTML</h3></div>
 <div class="card" onclick="pick('mysql')"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg"><h3>MySQL</h3></div>
 </div>
-</div>
+</section>
 
-<div id="levels" class="center">
+<section id="levels" class="center">
 <h1>Nivel</h1>
 <button onclick="start('facil')">Fácil</button>
 <button onclick="start('medio')">Medio</button>
 <button onclick="start('dificil')">Difícil</button>
-</div>
+</section>
 
-<div id="quiz">
-<h2 id="question"></h2>
-<div id="opts"></div>
+<section id="quiz">
+<h2 id="q"></h2>
+<div id="o"></div>
 <button onclick="next()">Siguiente</button>
-</div>
+</section>
 
-<div id="result" class="center"></div>
+<section id="result" class="center"></section>
 
 <script>
 firebase.initializeApp({
@@ -97,16 +57,13 @@ authDomain:"curso-programacion-d1921.firebaseapp.com",
 projectId:"curso-programacion-d1921"
 });
 
-const auth=firebase.auth();
-
-auth.onAuthStateChanged(u=>{
-if(u){
-courses.style.display="block";
-}else login.style.display="block";
+firebase.auth().onAuthStateChanged(u=>{
+if(u)courses.style.display="block";
+else login.style.display="block";
 });
 
 function login(){
-auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
 }
 
 let curso,nivel,i=0,score=0,qs=[];
@@ -115,42 +72,27 @@ const bank=[];
 ["python","js","html","mysql"].forEach(l=>{
 ["facil","medio","dificil"].forEach(n=>{
 for(let x=0;x<10;x++){
-bank.push({
-l,n,
-q:${l.toUpperCase()} ${n} pregunta ${x+1},
-o:["A","B","C","D"],
-r:Math.floor(Math.random()*4),
-p:10
-});
+bank.push({l,n,q:${l} ${n} pregunta ${x+1},o:["A","B","C","D"],r:Math.floor(Math.random()*4)});
 }
 });
 });
 
-function pick(c){
-curso=c;
-courses.style.display="none";
-levels.style.display="block";
-}
+function pick(c){curso=c;courses.style.display="none";levels.style.display="block"}
 
 function start(n){
-nivel=n;
-levels.style.display="none";
-quiz.style.display="block";
-
+nivel=n;levels.style.display="none";quiz.style.display="block";
 qs=bank.filter(x=>x.l==curso&&x.n==nivel).sort(()=>Math.random()-0.5);
-
-i=0;score=0;
-show();
+i=0;score=0;show();
 }
 
 function show(){
-question.innerText=qs[i].q;
-opts.innerHTML="";
+q.innerText=qs[i].q;
+o.innerHTML="";
 qs[i].o.forEach((t,j)=>{
 let b=document.createElement("button");
 b.innerText=t;
-b.onclick=()=>{ if(j==qs[i].r)score+=qs[i].p; };
-opts.appendChild(b);
+b.onclick=()=>{if(j==qs[i].r)score+=10};
+o.appendChild(b);
 });
 }
 
@@ -163,13 +105,7 @@ else show();
 function finish(){
 quiz.style.display="none";
 result.style.display="block";
-let ok=score>=70;
-
-result.innerHTML=`
-<h1>${ok?"APROBADO 🎉":"REPROBADO ❌"}</h1>
-<h2>${score} puntos</h2>
-<button onclick="location.reload()">Volver</button>
-`;
+result.innerHTML=<h1>${score>=70?"APROBADO":"REPROBADO"}</h1><h2>${score}</h2><button onclick="location.reload()">Volver</button>;
 }
 </script>
 
