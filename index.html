@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Endex Program</title>
+<title>Endex Quiz</title>
 
 <style>
 body{
@@ -15,16 +15,10 @@ min-height:100vh;
 
 .hidden{display:none}
 
-.center{
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-height:100vh;
-}
-
-.menu{
+.menu,.quiz{
 padding:40px;
+max-width:1000px;
+margin:auto;
 }
 
 .courses{
@@ -41,20 +35,16 @@ border-radius:25px;
 font-size:22px;
 text-align:center;
 cursor:pointer;
-transition:.2s;
-}
-
-.card:hover{transform:scale(1.05)}
-
-.quiz{
-max-width:900px;
-margin:auto;
-padding:40px;
 }
 
 .answers button{
 width:100%;
-margin:12px 0;
+margin:10px 0;
+background:#4d0077;
+}
+
+.answers button.active{
+background:#00c853;
 }
 
 button{
@@ -65,9 +55,12 @@ padding:15px 40px;
 border-radius:25px;
 font-size:18px;
 cursor:pointer;
+margin-top:20px;
 }
 
 .result{
+text-align:center;
+padding-top:150px;
 font-size:30px;
 }
 </style>
@@ -75,10 +68,8 @@ font-size:30px;
 
 <body>
 
-<!-- MENU -->
 <div id="menu" class="menu">
 <h1>Selecciona Lenguaje</h1>
-
 <div class="courses">
 <div class="card" onclick="selectLang('Python')">Python</div>
 <div class="card" onclick="selectLang('JavaScript')">JavaScript</div>
@@ -87,10 +78,8 @@ font-size:30px;
 </div>
 </div>
 
-<!-- LEVEL -->
 <div id="levels" class="menu hidden">
 <h1>Selecciona Nivel</h1>
-
 <div class="courses">
 <div class="card" onclick="startQuiz('facil')">Fácil</div>
 <div class="card" onclick="startQuiz('medio')">Medio</div>
@@ -98,99 +87,95 @@ font-size:30px;
 </div>
 </div>
 
-<!-- QUIZ -->
 <div id="quiz" class="quiz hidden">
 <h2 id="title"></h2>
 <h3 id="question"></h3>
-
 <div id="answers" class="answers"></div>
-
 <button onclick="next()">Siguiente</button>
 </div>
 
-<!-- RESULT -->
-<div id="result" class="center hidden">
+<div id="result" class="result hidden">
 <h1 id="final"></h1>
 <button onclick="location.reload()">Volver</button>
 </div>
 
 <script>
 
-const preguntas={
-Python:{
-facil:[
-["print sirve?",["mostrar","guardar","borrar","cerrar"],0],
+const data={
+Python:[
+["print hace?",["mostrar","guardar","cerrar","borrar"],0],
 ["Lista?",["[]","{}","()","<>"],0],
-["True es?",["texto","bool","numero","lista"],1],
-["Extensión?",[".js",".py",".exe",".html"],1],
-["Comentario?",["//","#","--","**"],1],
+["Boolean?",["True","5","hola","[]"],0],
+["Extensión?",[".py",".js",".html",".exe"],0],
+["Comentario?",["#","//","--","**"],0],
+["Función?",["def","run","func","method"],0],
+["Entrada?",["input","read","cin","scan"],0],
+["Loop?",["for","repeat","each","cycle"],0],
 ["Variable?",["x=5","var","let","int"],0],
-["Loop?",["for","each","repeat","cycle"],0],
-["Input?",["read","input","cin","scan"],1],
-["Función?",["def","func","method","run"],0],
-["Boolean falso?",["false","False","0","no"],1]
-],
-medio:[], dificil:[]
-},
-
-JavaScript:{facil:[],medio:[],dificil:[]},
-HTML:{facil:[],medio:[],dificil:[]},
-MySQL:{facil:[],medio:[],dificil:[]}
+["False es?",["boolean","texto","numero","lista"],0]
+]
 };
 
-Object.keys(preguntas).forEach(l=>{
-["medio","dificil"].forEach(n=>{
-preguntas[l][n]=JSON.parse(JSON.stringify(preguntas[l].facil));
-});
-});
-
-let lenguaje="",nivel="",lista=[],i=0,puntos=0;
+let lang="",level="",questions=[],i=0,score=0,selected=null;
 
 function selectLang(l){
-lenguaje=l;
+lang=l;
 menu.classList.add("hidden");
 levels.classList.remove("hidden");
 }
 
-function startQuiz(n){
-nivel=n;
+function startQuiz(l){
+level=l;
 levels.classList.add("hidden");
 quiz.classList.remove("hidden");
 
-lista=[...preguntas[lenguaje][nivel]].sort(()=>Math.random()-0.5);
-i=0;puntos=0;
-mostrar();
+questions=[...data.Python].sort(()=>Math.random()-0.5);
+i=0;
+score=0;
+load();
 }
 
-function mostrar(){
-title.innerText=lenguaje.toUpperCase()+" - "+nivel.toUpperCase();
-question.innerText=lista[i][0];
+function load(){
+selected=null;
+title.innerText=${lang} - ${level.toUpperCase()};
+question.innerText=questions[i][0];
 answers.innerHTML="";
 
-lista[i][1].forEach((x,n)=>{
+questions[i][1].forEach((a,n)=>{
 let b=document.createElement("button");
-b.textContent=x;
-b.onclick=()=>responder(n);
+b.innerText=a;
+b.onclick=()=>choose(b,n);
 answers.appendChild(b);
 });
 }
 
-function responder(n){
-if(n===lista[i][2]) puntos++;
+function choose(btn,n){
+selected=n;
+document.querySelectorAll(".answers button").forEach(b=>b.classList.remove("active"));
+btn.classList.add("active");
 }
 
 function next(){
-i++;
-if(i>=10) finalizar();
-else mostrar();
+
+if(selected===null){
+alert("Selecciona una respuesta");
+return;
 }
 
-function finalizar(){
+if(selected===questions[i][2]) score++;
+
+i++;
+
+if(i>=10) finish();
+else load();
+}
+
+function finish(){
 quiz.classList.add("hidden");
 result.classList.remove("hidden");
 
-let estado=puntos>=6?"APROBADO":"REPROBADO";
-final.innerText=${estado}\n\n${puntos}/10;
+let estado=score>=6?"APROBADO":"REPROBADO";
+final.innerText=${estado}\n\nPuntaje: ${score}/10;
 }
 
 </script>
