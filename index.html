@@ -2,192 +2,160 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Curso Interactivo de Programación</title>
+<title>Curso Programación</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <style>
-body {
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: linear-gradient(135deg, #0b0014, #1a0033);
-    color: #ffffff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+body{
+margin:0;
+font-family:Arial;
+background:#0b0014;
+color:white;
+text-align:center
 }
-
-.contenedor {
-    background-color: #12001f;
-    border: 2px solid #6a0dad;
-    padding: 35px;
-    border-radius: 16px;
-    width: 650px;
-    box-shadow: 0 0 35px rgba(106, 13, 173, 0.5);
+button{
+background:#7b2cff;
+border:none;
+padding:12px 20px;
+border-radius:8px;
+color:white;
+cursor:pointer;
+margin:6px
 }
-
-h1 {
-    text-align: center;
-    color: #d9b8ff;
-    margin-bottom: 10px;
+.card{
+background:#150022;
+padding:20px;
+margin:20px auto;
+max-width:500px;
+border-radius:15px
 }
-
-.contador {
-    text-align: center;
-    font-size: 14px;
-    color: #b98cff;
-    margin-bottom: 10px;
-}
-
-.progreso {
-    width: 100%;
-    height: 10px;
-    background-color: #2a0044;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 20px;
-}
-
-.progreso-barra {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #6a0dad, #b56cff);
-    transition: width 0.4s;
-}
-
-.pregunta {
-    font-size: 20px;
-    margin-bottom: 20px;
-}
-
-button {
-    width: 100%;
-    padding: 14px;
-    margin: 7px 0;
-    font-size: 15px;
-    border: 1px solid #6a0dad;
-    border-radius: 10px;
-    background-color: #1f0033;
-    color: #ffffff;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #6a0dad;
-}
-
-.panel {
-    margin-top: 20px;
-    padding: 16px;
-    background-color: #1a002b;
-    border-left: 4px solid #6a0dad;
-    border-radius: 10px;
-    display: none;
-}
-
-.panel h3 {
-    margin-top: 0;
-    color: #cfa8ff;
-}
-
-.codigo {
-    background-color: #0f001a;
-    border: 1px solid #6a0dad;
-    padding: 12px;
-    border-radius: 8px;
-    font-family: monospace;
-    font-size: 13px;
-    margin-top: 10px;
-    color: #e6d6ff;
-}
+.hidden{display:none}
 </style>
 </head>
 
 <body>
 
-<div class="contenedor" id="juego">
-    <h1>Curso Interactivo de Programación</h1>
-    <div class="contador" id="contador"></div>
+<h1>🚀 Curso Programación</h1>
 
-    <div class="progreso">
-        <div class="progreso-barra" id="barra"></div>
-    </div>
-
-    <div class="pregunta" id="pregunta"></div>
-    <div id="opciones"></div>
-
-    <div class="panel" id="panel"></div>
-    <button id="continuar" style="display:none;" onclick="siguiente()">Continuar</button>
+<div id="loginDiv" class="card">
+<h2>Inicia sesión</h2>
+<button onclick="login()">Google</button>
 </div>
 
+<div id="menu" class="hidden card">
+<h2 id="user"></h2>
+<h3>Curso</h3>
+<button onclick="selectCourse('python')">Python</button>
+<button onclick="selectCourse('js')">JavaScript</button>
+<button onclick="selectCourse('html')">HTML</button>
+<button onclick="selectCourse('mysql')">MySQL</button>
+</div>
+
+<div id="levels" class="hidden card">
+<h3>Nivel</h3>
+<button onclick="startQuiz('facil')">Fácil</button>
+<button onclick="startQuiz('medio')">Medio</button>
+<button onclick="startQuiz('dificil')">Difícil</button>
+<button onclick="startQuiz('extremo')">Extremo</button>
+</div>
+
+<div id="quiz" class="hidden card">
+<h3 id="q"></h3>
+<div id="opts"></div>
+</div>
+
+<div id="result" class="hidden card"></div>
+
 <script>
-const preguntas = [
-{texto:"¿Qué es programar?",opciones:["Usar internet","Dar instrucciones a una computadora","Reparar PCs","Instalar apps"],correcta:1,teoria:"Programar es escribir instrucciones.",utilidad:"Permite que la computadora haga tareas automáticamente.",ejemplo:"console.log(\"Hola mundo\");"},
-{texto:"¿Qué es una variable?",opciones:["Un error","Un espacio para guardar datos","Un bucle","Un comentario"],correcta:1,teoria:"Una variable guarda información.",utilidad:"Permite reutilizar valores.",ejemplo:"let edad = 18;"},
-{texto:"¿Qué tipo de dato es un número?",opciones:["String","Boolean","Number","Array"],correcta:2,teoria:"Number representa valores numéricos.",utilidad:"Se usa para cálculos.",ejemplo:"let total = 10 + 5;"},
-{texto:"¿Qué tipo de dato es un texto?",opciones:["Boolean","String","Number","Loop"],correcta:1,teoria:"String almacena texto.",utilidad:"Guardar palabras o frases.",ejemplo:"let nombre = \"Ana\";"},
-{texto:"¿Para qué sirve if?",opciones:["Repetir código","Tomar decisiones","Guardar datos","Cerrar programa"],correcta:1,teoria:"if es una condición.",utilidad:"Ejecuta código si se cumple algo.",ejemplo:"if (edad >= 18) { console.log(\"OK\"); }"},
-{texto:"¿Qué es un bucle?",opciones:["Error","Condición","Repetición","Variable"],correcta:2,teoria:"Un bucle repite instrucciones.",utilidad:"Evita escribir código repetido.",ejemplo:"while(i < 5) { i++; }"},
-{texto:"¿Cuál es un bucle?",opciones:["if","for","let","print"],correcta:1,teoria:"for es un bucle.",utilidad:"Repite acciones controladas.",ejemplo:"for(let i=0;i<3;i++){console.log(i);}"},
-{texto:"¿Qué es boolean?",opciones:["Texto","Número","Verdadero o falso","Lista"],correcta:2,teoria:"Boolean tiene dos valores.",utilidad:"Sirve para condiciones.",ejemplo:"let activo = true;"},
-{texto:"¿Qué hace console.log()?",opciones:["Cierra navegador","Muestra mensajes","Guarda datos","Borra código"],correcta:1,teoria:"Muestra información.",utilidad:"Ayuda a depurar.",ejemplo:"console.log(total);"},
-{texto:"¿Qué es un error de sintaxis?",opciones:["Error lógico","Error al escribir","Virus","Variable"],correcta:1,teoria:"Error por escribir mal el código.",utilidad:"Debe corregirse para que funcione.",ejemplo:"let x = ;"},
-{texto:"¿Qué es un comentario?",opciones:["Código","Texto ignorado","Error","Variable"],correcta:1,teoria:"Comentarios no se ejecutan.",utilidad:"Explican el código.",ejemplo:"// Esto es un comentario"},
-{texto:"¿Para qué sirve let?",opciones:["Funciones","Variables","Bucles","Cerrar bloques"],correcta:1,teoria:"let declara variables.",utilidad:"Controla alcance.",ejemplo:"let x = 5;"},
-{texto:"¿Qué es una función?",opciones:["Variable","Bucle","Bloque reutilizable","Error"],correcta:2,teoria:"Función agrupa instrucciones.",utilidad:"Reutilizar código.",ejemplo:"function saludar(){console.log(\"Hola\");}"},
-{texto:"¿Para qué sirve return?",opciones:["Cerrar app","Devolver valor","Mostrar texto","Crear bucle"],correcta:1,teoria:"return devuelve datos.",utilidad:"Enviar resultados.",ejemplo:"return suma;"},
-{texto:"¿Qué es un array?",opciones:["Número","Texto","Lista","Error"],correcta:2,teoria:"Array guarda varios valores.",utilidad:"Manejar colecciones.",ejemplo:"let nums = [1,2,3];"},
-{texto:"¿Qué hace = ?",opciones:["Comparar","Asignar","Sumar","Restar"],correcta:1,teoria:"Asigna valores.",utilidad:"Guardar datos.",ejemplo:"x = 10;"},
-{texto:"¿Qué significa == ?",opciones:["Asignar","Comparar","Multiplicar","Dividir"],correcta:1,teoria:"Compara valores.",utilidad:"Evaluar igualdad.",ejemplo:"x == 5"},
-{texto:"¿Qué es depurar?",opciones:["Crear errores","Buscar errores","Borrar código","Ejecutar"],correcta:1,teoria:"Depurar es corregir errores.",utilidad:"Mejorar programas.",ejemplo:"console.log(x);"},
-{texto:"¿Qué es HTML?",opciones:["Lenguaje de estilos","Lenguaje de programación","Lenguaje de marcado","Sistema"],correcta:2,teoria:"HTML estructura páginas.",utilidad:"Crear webs.",ejemplo:"<h1>Título</h1>"},
-{texto:"¿Qué es JavaScript?",opciones:["HTML","CSS","Lenguaje de programación","Servidor"],correcta:2,teoria:"JS da lógica a la web.",utilidad:"Interactividad.",ejemplo:"alert(\"Hola\");"}
+const firebaseConfig = {
+apiKey: "AIzaSyBSZUyulUeJhdc6vl-SsyZtEoThEMNhBU",
+authDomain: "curso-programacion-d1921.firebaseapp.com",
+projectId: "curso-programacion-d1921",
+storageBucket: "curso-programacion-d1921.appspot.com",
+messagingSenderId: "40569665582",
+appId: "1:40569665582:web:0b09a2d0ce88737cdc87bf",
+measurementId: "G-54T0S7CPBB"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+
+let curso,nivel,preguntas=[],i=0,puntos=0;
+
+const banco=[
+{l:"python",n:"facil",q:"¿Qué imprime print(2+2)?",o:["4","22","Error"],r:0,p:5},
+{l:"python",n:"medio",q:"x=[1,2];print(len(x))",o:["1","2","Error"],r:1,p:5},
+{l:"js",n:"facil",q:"typeof 5 devuelve:",o:["number","string","int"],r:0,p:5},
+{l:"html",n:"facil",q:"Etiqueta principal:",o:["<body>","<head>","<main>"],r:0,p:5},
+{l:"mysql",n:"facil",q:"SELECT sirve para:",o:["Insertar","Leer","Borrar"],r:1,p:5},
+
+{l:"python",n:"dificil",q:"print([i for i in range(3)])",o:["0,1,2","[0,1,2]","error"],r:1,p:10},
+{l:"js",n:"medio",q:"let x=[]; console.log(x==true)",o:["true","false"],r:1,p:8},
+{l:"html",n:"medio",q:"display:flex pertenece a:",o:["HTML","CSS","JS"],r:1,p:8},
+{l:"mysql",n:"medio",q:"PRIMARY KEY:",o:["duplica","identifica","borra"],r:1,p:8},
 ];
 
-let i = 0, puntaje = 0;
-
-function mostrar(){
-    document.getElementById("panel").style.display="none";
-    document.getElementById("continuar").style.display="none";
-    document.getElementById("contador").textContent = `Lección ${i+1} de ${preguntas.length}`;
-    document.getElementById("barra").style.width = (i/preguntas.length*100)+"%";
-
-    const p = preguntas[i];
-    document.getElementById("pregunta").textContent = p.texto;
-    const op = document.getElementById("opciones");
-    op.innerHTML="";
-
-    p.opciones.forEach((o,j)=>{
-        const b=document.createElement("button");
-        b.textContent=o;
-        b.onclick=()=>responder(j);
-        op.appendChild(b);
-    });
+function login(){
+auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(r=>{
+loginDiv.classList.add("hidden");
+menu.classList.remove("hidden");
+user.innerText=r.user.displayName;
+});
 }
 
-function responder(r){
-    const p = preguntas[i];
-    document.getElementById("opciones").innerHTML="";
-    if(r===p.correcta) puntaje++;
-
-    const panel=document.getElementById("panel");
-    panel.innerHTML=`
-        <h3>Concepto</h3><p>${p.teoria}</p>
-        <h3>¿Para qué sirve?</h3><p>${p.utilidad}</p>
-        <h3>Ejemplo</h3><div class="codigo">${p.ejemplo}</div>`;
-    panel.style.display="block";
-    document.getElementById("continuar").style.display="block";
+function selectCourse(c){
+curso=c;
+menu.classList.add("hidden");
+levels.classList.remove("hidden");
 }
 
-function siguiente(){
-    i++;
-    if(i<preguntas.length) mostrar();
-    else document.getElementById("juego").innerHTML=`
-        <h1>Curso completado</h1>
-        <p>Puntaje: ${puntaje} de ${preguntas.length}</p>
-        <button onclick="location.reload()">Reiniciar</button>`;
+function startQuiz(n){
+nivel=n;
+levels.classList.add("hidden");
+quiz.classList.remove("hidden");
+
+preguntas=banco.filter(p=>p.l==curso&&p.n==nivel)
+.sort(()=>Math.random()-0.5);
+
+i=0;puntos=0;
+show();
 }
 
-mostrar();
+function show(){
+if(i>=preguntas.length){finish();return;}
+q.innerText=preguntas[i].q;
+opts.innerHTML="";
+preguntas[i].o.forEach((op,j)=>{
+let b=document.createElement("button");
+b.innerText=op;
+b.onclick=()=>answer(j);
+opts.appendChild(b);
+});
+}
+
+function answer(j){
+if(j==preguntas[i].r)puntos+=preguntas[i].p;
+i++;show();
+}
+
+function finish(){
+quiz.classList.add("hidden");
+result.classList.remove("hidden");
+
+let aprobado=puntos>=70;
+
+result.innerHTML=`
+<h2>Puntaje: ${puntos}</h2>
+<h3>${aprobado?"APROBADO 🎉":"REPROBADO ❌"}</h3>
+<button onclick='location.reload()'>Volver</button>
+`;
+
+let hist=JSON.parse(localStorage.getItem("hist")||"[]");
+hist.push({curso,nivel,puntos,fecha:new Date().toLocaleDateString()});
+localStorage.setItem("hist",JSON.stringify(hist));
+}
 </script>
 
 </body>
