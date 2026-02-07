@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curso de Programación</title>
+    <title>Curso de Programación - Certificación</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -17,9 +17,9 @@
             padding: 20px;
         }
         .container { width: 100%; max-width: 800px; text-align: center; }
-        h1 { margin-bottom: 30px; color: #a78bfa; font-size: 2.5rem; }
-        section { display: none; animation: fadeIn 0.4s ease; }
-        section.active { display: block; }
+        h1 { margin-bottom: 30px; color: #a78bfa; font-size: 2.5rem; text-shadow: 0 0 10px rgba(167, 139, 250, 0.3); }
+        section { display: none; }
+        section.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .cards-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
@@ -33,7 +33,8 @@
             transition: 0.3s;
         }
         .card:hover { transform: translateY(-5px); background: rgba(124, 58, 237, 0.2); border-color: #a78bfa; }
-        .icon { font-size: 3.5rem; margin-bottom: 10px; }
+        .icon { font-size: 3.5rem; margin-bottom: 10px; pointer-events: none; }
+        h3, p { pointer-events: none; }
 
         .btn-group { display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin: 20px auto; }
         button {
@@ -48,8 +49,7 @@
             transition: 0.2s;
         }
         button:hover:not(:disabled) { background: #6d28d9; transform: scale(1.02); }
-        button:disabled { background: #4b5563; cursor: not-allowed; }
-
+        
         .answer-btn {
             display: block;
             width: 100%;
@@ -84,141 +84,123 @@
     </section>
 
     <section id="levels-section">
-        <h2 id="course-display-title"></h2>
+        <h2 id="display-curso-nombre"></h2>
         <div class="btn-group">
             <button class="level-btn" data-level="easy">Nivel Básico</button>
             <button class="level-btn" data-level="medium">Nivel Medio</button>
             <button class="level-btn" data-level="hard">Nivel Difícil</button>
-            <button id="back-to-menu" style="background: #444;">« Volver al Inicio</button>
+            <button id="btn-volver-menu" style="background: #444;">« Volver</button>
         </div>
     </section>
 
     <section id="quiz-section">
-        <div style="background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 20px;">
-            <div id="q-counter">Pregunta 1 de 10</div>
+        <div style="background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 20px; border: 1px solid rgba(124, 58, 237, 0.3);">
+            <div id="q-header" style="color: #c4b5fd; font-weight: bold;">Pregunta 1 de 10</div>
             <div class="progress-container"><div class="progress-fill" id="bar-fill"></div></div>
             <h3 id="q-text" style="margin-bottom: 25px; min-height: 50px;"></h3>
             <div id="options-container"></div>
-            <button id="next-question-btn" style="width: 100%; margin-top: 20px; background: #db2777;">Siguiente Pregunta</button>
+            <button id="btn-siguiente" style="width: 100%; margin-top: 20px; background: #db2777;">Siguiente</button>
         </div>
     </section>
 
     <section id="result-section">
-        <h2 id="final-score-text"></h2>
-        <p id="final-msg" style="margin: 20px 0; font-size: 1.3rem;"></p>
-        <button id="reset-game">Intentar de nuevo</button>
+        <h2 id="res-score"></h2>
+        <p id="res-msg" style="margin: 20px 0; font-size: 1.3rem;"></p>
+        <button id="btn-reiniciar">Reiniciar Aplicación</button>
     </section>
 </div>
 
 <script>
-    // Base de datos de preguntas (90 preguntas en total)
-    const database = {
+(function() {
+    const db = {
         'Python': {
             'easy': [
-                { q: "¿Qué función muestra texto en pantalla?", a: ["print()", "input()", "write()", "output()"], c: 0 },
-                { q: "¿Cómo se definen los comentarios de una línea?", a: ["//", "/*", "#", "", "/* */"], c: 2 },
+                { q: "¿Qué función muestra texto?", a: ["print()", "input()", "write()", "output()"], c: 0 },
+                { q: "¿Símbolo para comentarios?", a: ["//", "/*", "#", "", "/* */"], c: 2 },
                 { q: "Lista desplegable:", a: ["<select>", "<list>", "<dropdown>", "<option>"], c: 0 },
-                { q: "Etiqueta sección:", a: ["<div", "<section>", "<part>", "A y B"], c: 3 }
+                { q: "Sección:", a: ["<div", "<section>", "<part>", "A y B"], c: 3 }
             ],
             'hard': [
-                { q: "¿Qué es HTML5?", a: ["Antiguo", "Estándar actual", "Librería", "Editor"], c: 1 },
-                { q: "¿Para <canvas>?", a: ["Gráficos/Dibujo", "Texto", "Audio", "Links"], c: 0 },
+                { q: "¿HTML5?", a: ["Antiguo", "Estándar actual", "Librería", "Editor"], c: 1 },
+                { q: "<canvas>:", a: ["Gráficos", "Texto", "Audio", "Links"], c: 0 },
                 { q: "Semántica:", a: ["<div>", "<article>", "<span>", "<b>"], c: 1 },
-                { q: "Atributo 'alt':", a: ["Color", "Texto alternativo", "Link", "Ancho"], c: 1 },
-                { q: "¿Qué hace <meta>?", a: ["Imagen", "SEO/Buscadores", "Boton", "Fondo"], c: 1 },
-                { q: "Geolocalización es de:", a: ["CSS", "HTML5", "PHP", "C++"], c: 1 },
+                { q: "Atributo 'alt':", a: ["Color", "Alternativo", "Link", "Ancho"], c: 1 },
+                { q: "<meta>:", a: ["Imagen", "SEO", "Boton", "Fondo"], c: 1 },
+                { q: "Geolocalización:", a: ["CSS", "HTML5", "PHP", "C++"], c: 1 },
                 { q: "Scripts:", a: ["<js>", "<script>", "<code>", "<javascript>"], c: 1 },
                 { q: "Elegir color:", a: ["type='color'", "type='palette'", "type='rgb'", "hex"], c: 0 },
-                { q: "¿Qué es iframe?", a: ["Web en web", "Imagen", "Boton", "Video"], c: 0 },
-                { q: "¿Para <nav>?", a: ["Navegación", "Texto", "Pie", "Header"], c: 0 }
+                { q: "iframe:", a: ["Web en web", "Imagen", "Boton", "Video"], c: 0 },
+                { q: "<nav>:", a: ["Navegación", "Texto", "Pie", "Header"], c: 0 }
             ]
         }
     };
 
-    // VARIABLES DE CONTROL
-    let selCurso = "";
-    let listaPreguntas = [];
-    let actualIdx = 0;
-    let scoreTotal = 0;
-    let respElegida = null;
+    let selCurso = "", selNivel = "", qsActuales = [], idx = 0, score = 0, elegida = null;
 
-    // ELEMENTOS
-    const secMenu = document.getElementById('menu-section');
-    const secLevels = document.getElementById('levels-section');
-    const secQuiz = document.getElementById('quiz-section');
-    const secResult = document.getElementById('result-section');
-
-    // NAVEGACIÓN
-    function irAMenu() {
-        secLevels.classList.remove('active');
-        secResult.classList.remove('active');
-        secMenu.classList.add('active');
-    }
-
-    function irANiveles(c) {
-        selCurso = c;
-        document.getElementById('course-display-title').innerText = `Nivel de ${c}`;
-        secMenu.classList.remove('active');
-        secLevels.classList.add('active');
-    }
-
-    // CONFIGURACIÓN DE BOTONES DE NIVEL (EVENT LISTENERS DINÁMICOS)
-    document.querySelectorAll('.level-btn').forEach(btn => {
-        btn.onclick = () => {
-            const nivel = btn.getAttribute('data-level');
-            const data = database[selCurso][nivel];
-            if(data) {
-                listaPreguntas = [...data].sort(() => Math.random() - 0.5);
-                actualIdx = 0;
-                scoreTotal = 0;
-                secLevels.classList.remove('active');
-                secQuiz.classList.add('active');
-                mostrarQ();
-            }
-        };
-    });
-
-    // LÓGICA DEL QUIZ
-    function mostrarQ() {
-        respElegida = null;
-        const q = listaPreguntas[actualIdx];
-        document.getElementById('q-counter').innerText = `Pregunta ${actualIdx + 1} de 10`;
-        document.getElementById('q-text').innerText = q.q;
-        document.getElementById('bar-fill').style.width = `${((actualIdx) / 10) * 100}%`;
-        
-        const optCont = document.getElementById('options-container');
-        optCont.innerHTML = "";
-        q.a.forEach((txt, i) => {
-            const b = document.createElement('button');
-            b.className = "answer-btn";
-            b.innerText = txt;
-            b.onclick = () => {
-                document.querySelectorAll('.answer-btn').forEach(x => x.classList.remove('selected'));
-                b.classList.add('selected');
-                respElegida = i;
-            };
-            optCont.appendChild(b);
-        });
-    }
-
-    document.getElementById('next-question-btn').onclick = () => {
-        if(respElegida === null) return alert("Selecciona una respuesta");
-        if(respElegida === listaPreguntas[actualIdx].c) scoreTotal++;
-        
-        actualIdx++;
-        if(actualIdx < 10) {
-            mostrarQ();
-        } else {
-            secQuiz.classList.remove('active');
-            secResult.classList.add('active');
-            document.getElementById('final-score-text').innerText = `${scoreTotal} / 10`;
-            document.getElementById('final-msg').innerText = scoreTotal >= 7 ? "¡Excelente! Has aprobado. 🏆" : "Sigue practicando para mejorar. 📖";
-        }
+    const cambiarSeccion = (id) => {
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
     };
 
-    document.getElementById('reset-game').onclick = irAMenu;
-    document.getElementById('back-to-menu').onclick = irAMenu;
+    // 1. Curso
+    document.querySelectorAll('.card').forEach(c => {
+        c.addEventListener('click', () => {
+            selCurso = c.getAttribute('data-curso');
+            document.getElementById('display-curso-nombre').innerText = "Nivel de " + selCurso;
+            cambiarSeccion('levels-section');
+        });
+    });
 
+    // 2. Nivel
+    document.querySelectorAll('.level-btn').forEach(b => {
+        b.addEventListener('click', () => {
+            selNivel = b.getAttribute('data-level');
+            const data = db[selCurso][selNivel];
+            qsActuales = [...data].sort(() => Math.random() - 0.5);
+            idx = 0; score = 0;
+            cambiarSeccion('quiz-section');
+            renderizarQ();
+        });
+    });
+
+    const renderizarQ = () => {
+        elegida = null;
+        const q = qsActuales[idx];
+        document.getElementById('q-header').innerText = `Pregunta ${idx + 1} de 10`;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('bar-fill').style.width = ((idx) / 10 * 100) + "%";
+        
+        const cont = document.getElementById('options-container');
+        cont.innerHTML = "";
+        q.a.forEach((txt, i) => {
+            const btn = document.createElement('button');
+            btn.className = "answer-btn";
+            btn.innerText = txt;
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                elegida = i;
+            });
+            cont.appendChild(btn);
+        });
+    };
+
+    document.getElementById('btn-siguiente').addEventListener('click', () => {
+        if(elegida === null) return alert("Selecciona respuesta");
+        if(elegida === qsActuales[idx].c) score++;
+        idx++;
+        if(idx < 10) renderizarQ();
+        else {
+            document.getElementById('res-score').innerText = score + " / 10";
+            document.getElementById('res-msg').innerText = score >= 7 ? "¡Excelente! Has aprobado. 🏆" : "Sigue practicando. 📖";
+            cambiarSeccion('result-section');
+        }
+    });
+
+    document.getElementById('btn-volver-menu').addEventListener('click', () => cambiarSeccion('menu-section'));
+    document.getElementById('btn-reiniciar').addEventListener('click', () => location.reload());
+
+})();
 </script>
 </body>
 </html>
