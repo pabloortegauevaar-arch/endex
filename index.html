@@ -3,120 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curso de Programación Pro</title>
+    <title>Curso de Programación Interactivo</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1b0033 0%, #2d0b52 100%);
+            background: #1b0033;
             color: white;
             min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
         }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        h1 { text-align: center; margin-bottom: 40px; font-size: 2.5rem; color: #fff; }
+        .container { width: 100%; max-width: 800px; text-align: center; }
+        h1 { margin-bottom: 30px; color: #fff; font-size: 2.5rem; }
         section { display: none; animation: fadeIn 0.5s ease; }
         section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Estilos de Tarjetas */
         .cards-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
         .card {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(124, 58, 237, 0.3);
+            border: 2px solid #7c3aed;
             border-radius: 15px;
-            padding: 30px;
-            width: 230px;
+            padding: 25px;
+            width: 220px;
             cursor: pointer;
             transition: 0.3s;
-            text-align: center;
         }
-        .card:hover { transform: translateY(-5px); border-color: #7c3aed; background: rgba(255, 255, 255, 0.15); }
-        .card .icon { font-size: 3rem; margin-bottom: 15px; }
+        .card:hover { transform: translateY(-5px); background: rgba(124, 58, 237, 0.2); }
+        .icon { font-size: 3rem; margin-bottom: 15px; }
 
-        .buttons-container { display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin: 40px auto; }
+        /* Botones de Dificultad */
+        .btn-group { display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin: 0 auto; }
         button {
-            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-            color: white; border: none; padding: 18px; border-radius: 12px;
-            font-size: 1.1rem; cursor: pointer; font-weight: bold; transition: 0.3s;
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            border: none;
+            background: #7c3aed;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
         }
-        button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(124, 58, 237, 0.4); }
+        button:hover { background: #6d28d9; }
 
-        #quiz-container {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.1);
-        }
+        /* Quiz */
+        #quiz-card { background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 20px; }
         .answer-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(124, 58, 237, 0.4);
-            width: 100%; padding: 15px; margin-bottom: 10px;
-            text-align: left; color: white; border-radius: 10px; cursor: pointer;
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            text-align: left;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #7c3aed;
         }
-        .answer-btn.selected { background: rgba(16, 185, 129, 0.3); border-color: #10b981; }
-        
-        .progress-bar { height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; margin: 20px 0; overflow: hidden; }
+        .answer-btn.selected { background: #10b981; border-color: #10b981; }
+        .progress { height: 10px; background: #333; border-radius: 5px; margin-bottom: 20px; overflow: hidden; }
         .progress-fill { height: 100%; background: #10b981; width: 0%; transition: 0.4s; }
-        #final-score { font-size: 4rem; color: #7c3aed; margin: 20px 0; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Curso de Programación</h1>
+<div class="container">
+    <h1>Curso de Programación</h1>
 
-        <section id="menu-section" class="active">
-            <h2 style="text-align: center; margin-bottom: 20px;">Selecciona un curso</h2>
-            <div class="cards-container">
-                <div class="card" onclick="selectCourse('Python')">
-                    <div class="icon">🐍</div>
-                    <h3>Python</h3>
-                </div>
-                <div class="card" onclick="selectCourse('Java')">
-                    <div class="icon">☕</div>
-                    <h3>Java</h3>
-                </div>
-                <div class="card" onclick="selectCourse('HTML')">
-                    <div class="icon">🌐</div>
-                    <h3>HTML/CSS</h3>
-                </div>
-            </div>
-        </section>
+    <section id="menu-section" class="active">
+        <h2>Selecciona un curso</h2>
+        <div class="cards-container">
+            <div class="card" onclick="irANiveles('Python')"><div class="icon">🐍</div><h3>Python</h3></div>
+            <div class="card" onclick="irANiveles('Java')"><div class="icon">☕</div><h3>Java</h3></div>
+            <div class="card" onclick="irANiveles('HTML')"><div class="icon">🌐</div><h3>HTML/CSS</h3></div>
+        </div>
+    </section>
 
-        <section id="levels-section">
-            <h2 id="course-title" style="text-align: center;"></h2>
-            <div class="buttons-container">
-                <button onclick="selectLevel('easy')">Básico</button>
-                <button onclick="selectLevel('medium')">Medio</button>
-                <button onclick="selectLevel('hard')">Difícil</button>
-            </div>
-        </section>
+    <section id="levels-section">
+        <h2 id="course-title"></h2>
+        <div class="btn-group">
+            <button onclick="empezarQuiz('easy')">Nivel Básico</button>
+            <button onclick="empezarQuiz('medium')">Nivel Medio</button>
+            <button onclick="empezarQuiz('hard')">Nivel Difícil</button>
+            <button onclick="irAMenu()" style="background: #444;">Volver</button>
+        </div>
+    </section>
 
-        <section id="quiz-section">
-            <div id="quiz-container">
-                <div id="question-number">Pregunta 1/10</div>
-                <div class="progress-bar"><div class="progress-fill" id="progress-bar-fill"></div></div>
-                <h3 id="question-text" style="margin-bottom: 20px;"></h3>
-                <div id="answers-container"></div>
-                <button id="next-btn" onclick="nextQuestion()" style="width: 100%; margin-top: 20px;">Siguiente</button>
-            </div>
-        </section>
+    <section id="quiz-section">
+        <div id="quiz-card">
+            <div id="info-pregunta">Pregunta 1 de 10</div>
+            <div class="progress"><div class="progress-fill" id="bar"></div></div>
+            <h3 id="texto-pregunta" style="margin-bottom: 20px;"></h3>
+            <div id="opciones"></div>
+            <button id="next-btn" onclick="siguientePregunta()" style="width: 100%; margin-top: 20px; background: #db2777;">Siguiente</button>
+        </div>
+    </section>
 
-        <section id="result-section">
-            <div style="text-align: center;">
-                <h2>Resultados</h2>
-                <div id="final-score"></div>
-                <div id="result-message" style="margin-bottom: 20px; font-size: 1.2rem;"></div>
-                <button onclick="location.reload()">Volver al Inicio</button>
-            </div>
-        </section>
-    </div>
+    <section id="result-section">
+        <h2 id="final-score"></h2>
+        <p id="result-msg" style="font-size: 1.2rem; margin: 20px 0;"></p>
+        <button onclick="irAMenu()">Reiniciar Curso</button>
+    </section>
+</div>
 
-    <script>
-        let currentCourse = '', currentLevel = '', currentQuestion = 0, score = 0, selectedAnswer = null, questions = [];
+<script>
+    let cursoActual = '';
+    let preguntas = [];
+    let indiceActual = 0;
+    let puntaje = 0;
+    let seleccion = null;
 
-        const questionDatabase = {
-            'Python': {
-                'easy': [
-                    { question: '¿Para qué sirve print()?', answers: ['Imprimir', 'Leer', 'Guardar', 'Nada'], correct: 0 },
-                    { question: '¿Cómo se declara variable?', answers: ['var x', 'int x', 'x = 5', 'val x'], correct: 2 },
-                    { question: 'Símbolo de comentario', answers: ['//', '#', '/*', '
+    // BASE DE DATOS EXTENDIDA (Ejemplo con Python Básico)
+    const db = {
+        'Python': {
+            'easy': [
+                { q: "¿Qué función muestra texto?", a: ["print()", "input()", "get()", "display()"], c: 0 },
+                { q: "¿Cómo se crea una lista?", a: ["( )", "[ ]", "{ }", "< >"], c: 1 },
+                { q: "¿Qué es un 'float'?", a: ["Entero", "Texto", "Decimal", "Booleano"], c: 2 },
+                { q: "¿Símbolo de comentarios?", a: ["//", "/*", "#", "
