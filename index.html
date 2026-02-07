@@ -3,204 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curso de Programación - Certificación</title>
+    <title>Quiz Pro</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1b0033;
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .container { width: 100%; max-width: 800px; text-align: center; }
-        h1 { margin-bottom: 30px; color: #a78bfa; font-size: 2.5rem; text-shadow: 0 0 10px rgba(167, 139, 250, 0.3); }
+        body { font-family: sans-serif; background: #1b0033; color: white; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .container { width: 100%; max-width: 500px; padding: 20px; text-align: center; }
         section { display: none; }
-        section.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .cards-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-        .card {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #7c3aed;
-            border-radius: 15px;
-            padding: 25px;
-            width: 220px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .card:hover { transform: translateY(-5px); background: rgba(124, 58, 237, 0.2); border-color: #a78bfa; }
-        .icon { font-size: 3.5rem; margin-bottom: 10px; pointer-events: none; }
-        h3, p { pointer-events: none; }
-
-        .btn-group { display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin: 20px auto; }
-        button {
-            padding: 15px;
-            font-size: 1.1rem;
-            border-radius: 10px;
-            border: none;
-            background: #7c3aed;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-        button:hover:not(:disabled) { background: #6d28d9; transform: scale(1.02); }
-        
-        .answer-btn {
-            display: block;
-            width: 100%;
-            margin-bottom: 12px;
-            text-align: left;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid #7c3aed;
-            padding: 15px;
-            border-radius: 8px;
-            color: white;
-        }
-        .answer-btn.selected { background: #10b981; border-color: #059669; font-weight: bold; }
-        
-        .progress-container { height: 12px; background: #333; border-radius: 6px; margin: 20px 0; overflow: hidden; }
-        .progress-fill { height: 100%; background: #10b981; width: 0%; transition: 0.4s; }
-        
-        #result-section h2 { font-size: 2.5rem; color: #a78bfa; margin-bottom: 15px; }
+        section.active { display: block; }
+        .cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 20px 0; }
+        .card { background: rgba(255,255,255,0.1); border: 2px solid #7c3aed; border-radius: 10px; padding: 15px; cursor: pointer; }
+        .card * { pointer-events: none; }
+        .btn-group { display: flex; flex-direction: column; gap: 10px; }
+        button { padding: 12px; border-radius: 8px; border: none; background: #7c3aed; color: white; font-weight: bold; cursor: pointer; }
+        .ans { background: #2d0b52; border: 1px solid #7c3aed; width: 100%; text-align: left; margin-bottom: 8px; color: white; padding: 10px; }
+        .ans.selected { background: #10b981; }
+        .bar-bg { height: 8px; background: #444; border-radius: 4px; margin: 10px 0; }
+        .bar-fill { height: 100%; background: #10b981; width: 0%; transition: 0.3s; }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h1>Curso de Programación</h1>
-
-    <section id="menu-section" class="active">
-        <h2>Selecciona un curso</h2>
-        <div class="cards-container">
-            <div class="card" data-curso="Python"><div class="icon">🐍</div><h3>Python</h3></div>
-            <div class="card" data-curso="Java"><div class="icon">☕</div><h3>Java</h3></div>
-            <div class="card" data-curso="HTML"><div class="icon">🌐</div><h3>HTML/CSS</h3></div>
+    <section id="menu" class="active">
+        <h1>Code Quiz</h1>
+        <div class="cards">
+            <div class="card" data-c="Python">🐍<br>Py</div>
+            <div class="card" data-c="Java">☕<br>Jv</div>
+            <div class="card" data-c="HTML">🌐<br>Htm</div>
         </div>
     </section>
-
-    <section id="levels-section">
-        <h2 id="display-curso-nombre"></h2>
+    <section id="lvls">
+        <h2 id="cur-txt"></h2>
         <div class="btn-group">
-            <button class="level-btn" data-level="easy">Nivel Básico</button>
-            <button class="level-btn" data-level="medium">Nivel Medio</button>
-            <button class="level-btn" data-level="hard">Nivel Difícil</button>
-            <button id="btn-volver-menu" style="background: #444;">« Volver</button>
+            <button class="l-bt" data-l="easy">Básico</button>
+            <button class="l-bt" data-l="medium">Medio</button>
+            <button class="l-bt" data-l="hard">Difícil</button>
         </div>
     </section>
-
-    <section id="quiz-section">
-        <div style="background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 20px; border: 1px solid rgba(124, 58, 237, 0.3);">
-            <div id="q-header" style="color: #c4b5fd; font-weight: bold;">Pregunta 1 de 10</div>
-            <div class="progress-container"><div class="progress-fill" id="bar-fill"></div></div>
-            <h3 id="q-text" style="margin-bottom: 25px; min-height: 50px;"></h3>
-            <div id="options-container"></div>
-            <button id="btn-siguiente" style="width: 100%; margin-top: 20px; background: #db2777;">Siguiente</button>
-        </div>
+    <section id="quiz">
+        <p id="q-count"></p>
+        <div class="bar-bg"><div class="bar-fill" id="fill"></div></div>
+        <h3 id="q-txt" style="margin:15px 0"></h3>
+        <div id="opts"></div>
+        <button id="next" style="width:100%;background:#db2777">Siguiente</button>
     </section>
-
-    <section id="result-section">
-        <h2 id="res-score"></h2>
-        <p id="res-msg" style="margin: 20px 0; font-size: 1.3rem;"></p>
-        <button id="btn-reiniciar">Reiniciar Aplicación</button>
+    <section id="res">
+        <h2 id="score"></h2>
+        <button onclick="location.reload()">Reiniciar</button>
     </section>
 </div>
-
 <script>
-(function() {
-    const db = {
-        'Python': {
-            'easy': [
-                { q: "¿Qué función muestra texto?", a: ["print()", "input()", "write()", "output()"], c: 0 },
-                { q: "¿Símbolo para comentarios?", a: ["//", "/*", "#", "", "/* */"], c: 2 },
-                { q: "Lista desplegable:", a: ["<select>", "<list>", "<dropdown>", "<option>"], c: 0 },
-                { q: "Sección:", a: ["<div", "<section>", "<part>", "A y B"], c: 3 }
-            ],
-            'hard': [
-                { q: "¿HTML5?", a: ["Antiguo", "Estándar actual", "Librería", "Editor"], c: 1 },
-                { q: "<canvas>:", a: ["Gráficos", "Texto", "Audio", "Links"], c: 0 },
-                { q: "Semántica:", a: ["<div>", "<article>", "<span>", "<b>"], c: 1 },
-                { q: "Atributo 'alt':", a: ["Color", "Alternativo", "Link", "Ancho"], c: 1 },
-                { q: "<meta>:", a: ["Imagen", "SEO", "Boton", "Fondo"], c: 1 },
-                { q: "Geolocalización:", a: ["CSS", "HTML5", "PHP", "C++"], c: 1 },
-                { q: "Scripts:", a: ["<js>", "<script>", "<code>", "<javascript>"], c: 1 },
-                { q: "Elegir color:", a: ["type='color'", "type='palette'", "type='rgb'", "hex"], c: 0 },
-                { q: "iframe:", a: ["Web en web", "Imagen", "Boton", "Video"], c: 0 },
-                { q: "<nav>:", a: ["Navegación", "Texto", "Pie", "Header"], c: 0 }
-            ]
-        }
-    };
-
-    let selCurso = "", selNivel = "", qsActuales = [], idx = 0, score = 0, elegida = null;
-
-    const cambiarSeccion = (id) => {
-        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    };
-
-    // 1. Curso
-    document.querySelectorAll('.card').forEach(c => {
-        c.addEventListener('click', () => {
-            selCurso = c.getAttribute('data-curso');
-            document.getElementById('display-curso-nombre').innerText = "Nivel de " + selCurso;
-            cambiarSeccion('levels-section');
-        });
+const db = {
+    'Python': {
+        'easy': [{q:"¿Print?",a:["Imp","Lee","Var","No"],c:0},{q:"¿Comentario?",a:["//","#","/*","--"],c:1},{q:"¿Listas?",a:["()","[]","{}","<>"],c:1},{q:"¿10.5?",a:["int","str","float","bool"],c:2},{q:"¿Función?",a:["func","def","define","fn"],c:1},{q:"¿Igualdad?",a:["=","==","===","is"],c:1},{q:"¿Input?",a:["Imp","Rec","Bor","Sal"],c:1},{q:"¿Ext?",a:[".py",".jv",".js",".htm"],c:0},{q:"¿2**3?",a:["6","8","9","5"],c:1},{q:"¿While?",a:["Bucle","Var","Cua","Txt"],c:0}],
+        'medium': [{q:"¿Append?",a:["Add","Ins","App","Ext"],c:2},{q:"¿Tupla?",a:["Mut","Inm","Buc","Cla"],c:1},{q:"¿10//3?",a:["3.3","3","1","0"],c:1},{q:"¿Import?",a:["inc","req","imp","use"],c:2},{q:"¿len()?",a:["Sum","Long","Bor","Div"],c:1},{q:"¿Dict?",a:["[]","()","{}","<>"],c:2},{q:"¿None?",a:["0","F","Nul","Err"],c:2},{q:"¿Try?",a:["Err","Exc","If","Try"],c:1},{q:"¿Break?",a:["Sig","Sal","Rep","Pau"],c:1},{q:"¿Upper?",a:["Upp","Big","Cap","Up"],c:0}],
+        'hard': [{q:"¿Decor?",a:["Est","Mod","Var","Cla"],c:1},{q:"¿Yield?",a:["Sal","Gen","Sum","Par"],c:1},{q:"¿Init?",a:["Ini","Con","Var","Fin"],c:1},{q:"¿Inherit?",a:["(B)","ext","inh",":"],c:0},{q:"¿Set?",a:["Lis","Uniq","Tup","Map"],c:1},{q:"¿Lamb?",a:["Ano","Gra","RAM","Web"],c:0},{q:"¿PEP8?",a:["Ver","Sty","Vir","ID"],c:1},{q:"¿Split?",a:["Uni","Div","Cor","Mov"],c:1},{q:"¿JSON?",a:["json","js","par","dat"],c:0},{q:"¿Namespace?",a:["Rut","Nam","IP","DNS"],c:1}]
+    },
+    'Java': {
+        'easy': [{q:"¿Int?",a:["flo","int","boo","Str"],c:1},{q:"¿Print?",a:["sys","pri","log","ech"],c:0},{q:"¿Main?",a:["sta","ini","mai","go"],c:2},{q:"¿Ext?",a:[".jv",".py",".htm",".js"],c:0},{q:"¿String?",a:["Num","Txt","Bit","Boo"],c:1},{q:"¿Fin?",a:[":",";",".",","],c:1},{q:"¿Class?",a:["cla","voi","def","new"],c:0},{q:"¿Suma?",a:["+","add","&","sum"],c:0},{q:"¿If?",a:["Buc","Con","Var","Cla"],c:1},{q:"¿Comment?",a:["#","//","/*","--"],c:1}],
+        'medium': [{q:"¿Final?",a:["Ult","Con","Pri","Fin"],c:1},{q:"¿Extends?",a:["ext","imp","inh","is"],c:0},{q:"¿This?",a:["Var","Ins","Nul","Glo"],c:1},{q:"¿New?",a:["Bor","Ins","Cop","Act"],c:1},{q:"¿Public?",a:["pri","pub","pro","all"],c:1},{q:"¿Inter?",a:["Cla","Con","Var","Buc"],c:1},{q:"¿JVM?",a:["VM","Edi","Web","ID"],c:0},{q:"¿Error?",a:["try","if","err","chk"],c:0},{q:"¿Array?",a:["Din","Fix","Txt","Map"],c:1},{q:"¿Const?",a:["ini","Nam","new","cre"],c:1}],
+        'hard': [{q:"¿Polim?",a:["For","Err","Tip","Dat"],c:0},{q:"¿Over?",a:["RAM","Nam","Err","Buc"],c:1},{q:"¿Thread?",a:["Hil","Lin","Var","Cla"],c:0},{q:"¿Abstr?",a:["NoM","NoI","Txt","Fin"],c:1},{q:"¿AList?",a:["Din","Fix","Tup","int"],c:0},{q:"¿Static?",a:["Cla","Mov","Pri","Buc"],c:0},{q:"¿Garb?",a:["Lim","Bor","Vir","Deb"],c:0},{q:"¿Pack?",a:["Car","Lib","Cla","Dat"],c:1},{q:"¿Enc?",a:["Ocu","Mos","Bor","Cop"],c:0},{q:"¿JRE?",a:["Run","Edi","Jav","Lib"],c:0}]
+    },
+    'HTML': {
+        'easy': [{q:"¿HTML?",a:["ML","HT","Ho","Li"],c:0},{q:"¿Link?",a:["lin","a","hre","url"],c:1},{q:"¿H1?",a:["P","G","He","Ti"],c:1},{q:"¿Br?",a:["hr","br","lb","bk"],c:1},{q:"¿UL?",a:["Ord","Des","Ite","Lis"],c:1},{q:"¿Img?",a:["hre","lin","src","alt"],c:2},{q:"¿Body?",a:["bod","htm","hea","mai"],c:0},{q:"¿Bold?",a:["b","n","str","AyC"],c:3},{q:"¿Close?",a:["/","//","<",">"],c:0},{q:"¿P?",a:["p","pr","a","div"],c:0}],
+        'medium': [{q:"¿Form?",a:["inp","for","sel","dat"],c:1},{q:"¿Head?",a:["Vis","Met","Pie","Men"],c:1},{q:"¿Tr?",a:["td","tr","th","ro"],c:1},{q:"¿Text?",a:["tex","str","wri","are"],c:0},{q:"¿CSS?",a:["Mar","Est","Ser","Cod"],c:1},{q:"¿Vid?",a:["mov","vid","mp4","pla"],c:1},{q:"¿ID?",a:["cla","id","nam","val"],c:1},{q:"¿Com?",a:["//","#","<!-","/*"],c:2},{q:"¿Sel?",a:["Lis","Dro","Opt","Inp"],c:0},{q:"¿Div?",a:["div","sec","par","AyB"],c:1}],
+        'hard': [{q:"¿H5?",a:["Vie","Std","Lib","Edi"],c:1},{q:"¿Canv?",a:["Dib","Txt","Aud","Lin"],c:0},{q:"¿Sem?",a:["div","art","spa","b"],c:1},{q:"¿Alt?",a:["Col","Alt","Lin","Siz"],c:1},{q:"¿Meta?",a:["Img","SEO","Btn","Bg"],c:1},{q:"¿Geo?",a:["CSS","H5","PHP","C"],c:1},{q:"¿Scr?",a:["js","scr","cod","jv"],c:1},{q:"¿Col?",a:["col","pal","hex","rgb"],c:0},{q:"¿Ifra?",a:["W-W","Img","Btn","Vid"],c:0},{q:"¿Nav?",a:["Men","Txt","Pie","Hea"],c:0}]
+    }
+};
+let sC="", sL="", qA=[], idx=0, pts=0, sel=null;
+const go=(id)=>{document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');};
+document.addEventListener('click', (e)=>{
+    const c=e.target.closest('.card');
+    if(c){sC=c.dataset.c; document.getElementById('cur-txt').innerText=sC; go('lvls');}
+    if(e.target.classList.contains('l-bt')){sL=e.target.dataset.l; qA=[...db[sC][sL]]; idx=0; pts=0; go('quiz'); render();}
+});
+function render(){
+    sel=null; const q=qA[idx];
+    document.getElementById('q-count').innerText=`${idx+1}/10`;
+    document.getElementById('q-txt').innerText=q.q;
+    document.getElementById('fill').style.width=(idx/10*100)+"%";
+    const b=document.getElementById('opts'); b.innerHTML="";
+    q.a.forEach((t,i)=>{
+        const bt=document.createElement('button'); bt.className="ans"; bt.innerText=t;
+        bt.onclick=()=>{document.querySelectorAll('.ans').forEach(x=>x.classList.remove('selected'));bt.classList.add('selected');sel=i;};
+        b.appendChild(bt);
     });
-
-    // 2. Nivel
-    document.querySelectorAll('.level-btn').forEach(b => {
-        b.addEventListener('click', () => {
-            selNivel = b.getAttribute('data-level');
-            const data = db[selCurso][selNivel];
-            qsActuales = [...data].sort(() => Math.random() - 0.5);
-            idx = 0; score = 0;
-            cambiarSeccion('quiz-section');
-            renderizarQ();
-        });
-    });
-
-    const renderizarQ = () => {
-        elegida = null;
-        const q = qsActuales[idx];
-        document.getElementById('q-header').innerText = `Pregunta ${idx + 1} de 10`;
-        document.getElementById('q-text').innerText = q.q;
-        document.getElementById('bar-fill').style.width = ((idx) / 10 * 100) + "%";
-        
-        const cont = document.getElementById('options-container');
-        cont.innerHTML = "";
-        q.a.forEach((txt, i) => {
-            const btn = document.createElement('button');
-            btn.className = "answer-btn";
-            btn.innerText = txt;
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                elegida = i;
-            });
-            cont.appendChild(btn);
-        });
-    };
-
-    document.getElementById('btn-siguiente').addEventListener('click', () => {
-        if(elegida === null) return alert("Selecciona respuesta");
-        if(elegida === qsActuales[idx].c) score++;
-        idx++;
-        if(idx < 10) renderizarQ();
-        else {
-            document.getElementById('res-score').innerText = score + " / 10";
-            document.getElementById('res-msg').innerText = score >= 7 ? "¡Excelente! Has aprobado. 🏆" : "Sigue practicando. 📖";
-            cambiarSeccion('result-section');
-        }
-    });
-
-    document.getElementById('btn-volver-menu').addEventListener('click', () => cambiarSeccion('menu-section'));
-    document.getElementById('btn-reiniciar').addEventListener('click', () => location.reload());
-
-})();
-</script>
-</body>
-</html>
+}
+document.getElementById('next').onclick=()=>{
+    if(sel===null)return; if(sel===qA[idx].c)pts++;
+    idx++; if(idx<10)render(); else{document.getElementById('score').innerText=`${pts}/10`; go('res');}
+};
+</script></body></html>
