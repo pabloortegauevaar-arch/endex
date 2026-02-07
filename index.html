@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curso de Programación Interactivo</title>
+    <title>Curso de Programación</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #1b0033;
             color: white;
             min-height: 100vh;
@@ -17,10 +17,10 @@
             padding: 20px;
         }
         .container { width: 100%; max-width: 800px; text-align: center; }
-        h1 { margin-bottom: 30px; color: #fff; font-size: 2.5rem; }
-        section { display: none; animation: fadeIn 0.5s ease; }
+        h1 { margin-bottom: 30px; color: #a78bfa; font-size: 2.5rem; }
+        section { display: none; animation: fadeIn 0.4s ease; }
         section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .cards-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
         .card {
@@ -32,8 +32,8 @@
             cursor: pointer;
             transition: 0.3s;
         }
-        .card:hover { transform: translateY(-5px); border-color: #a78bfa; background: rgba(124, 58, 237, 0.2); }
-        .icon { font-size: 3rem; margin-bottom: 15px; }
+        .card:hover { transform: translateY(-5px); background: rgba(124, 58, 237, 0.2); border-color: #a78bfa; }
+        .icon { font-size: 3.5rem; margin-bottom: 10px; }
 
         .btn-group { display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin: 20px auto; }
         button {
@@ -45,30 +45,28 @@
             color: white;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
+            transition: 0.2s;
         }
         button:hover:not(:disabled) { background: #6d28d9; transform: scale(1.02); }
         button:disabled { background: #4b5563; cursor: not-allowed; }
 
-        #quiz-card { background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 20px; border: 1px solid rgba(124, 58, 237, 0.3); }
         .answer-btn {
             display: block;
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             text-align: left;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.08);
             border: 1px solid #7c3aed;
             padding: 15px;
             border-radius: 8px;
             color: white;
-            transition: 0.2s;
         }
-        .answer-btn.selected { background: #10b981; border-color: #10b981; font-weight: bold; }
+        .answer-btn.selected { background: #10b981; border-color: #059669; font-weight: bold; }
         
-        .progress { height: 10px; background: #333; border-radius: 5px; margin: 20px 0; overflow: hidden; }
+        .progress-container { height: 12px; background: #333; border-radius: 6px; margin: 20px 0; overflow: hidden; }
         .progress-fill { height: 100%; background: #10b981; width: 0%; transition: 0.4s; }
         
-        #result-section h2 { font-size: 3rem; color: #a78bfa; margin-bottom: 10px; }
+        #result-section h2 { font-size: 2.5rem; color: #a78bfa; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -79,125 +77,148 @@
     <section id="menu-section" class="active">
         <h2>Selecciona un curso</h2>
         <div class="cards-container">
-            <div class="card" onclick="irANiveles('Python')"><div class="icon">🐍</div><h3>Python</h3></div>
-            <div class="card" onclick="irANiveles('Java')"><div class="icon">☕</div><h3>Java</h3></div>
-            <div class="card" onclick="irANiveles('HTML')"><div class="icon">🌐</div><h3>HTML/CSS</h3></div>
+            <div class="card" data-curso="Python"><div class="icon">🐍</div><h3>Python</h3></div>
+            <div class="card" data-curso="Java"><div class="icon">☕</div><h3>Java</h3></div>
+            <div class="card" data-curso="HTML"><div class="icon">🌐</div><h3>HTML/CSS</h3></div>
         </div>
     </section>
 
     <section id="levels-section">
-        <h2 id="course-title"></h2>
+        <h2 id="course-display-title"></h2>
         <div class="btn-group">
-            <button onclick="empezarQuiz('easy')">Nivel Básico</button>
-            <button onclick="empezarQuiz('medium')">Nivel Medio</button>
-            <button onclick="empezarQuiz('hard')">Nivel Difícil</button>
-            <button onclick="irAMenu()" style="background: #444; margin-top: 10px;">Volver</button>
+            <button class="level-btn" data-level="easy">Nivel Básico</button>
+            <button class="level-btn" data-level="medium">Nivel Medio</button>
+            <button class="level-btn" data-level="hard">Nivel Difícil</button>
+            <button id="back-to-menu" style="background: #444;">« Volver al Inicio</button>
         </div>
     </section>
 
     <section id="quiz-section">
-        <div id="quiz-card">
-            <div id="info-pregunta">Pregunta 1 de 10</div>
-            <div class="progress"><div class="progress-fill" id="bar"></div></div>
-            <h3 id="texto-pregunta" style="margin-bottom: 20px; min-height: 60px;"></h3>
-            <div id="opciones"></div>
-            <button id="next-btn" onclick="siguientePregunta()" style="width: 100%; margin-top: 20px; background: #db2777;">Siguiente</button>
+        <div style="background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 20px;">
+            <div id="q-counter">Pregunta 1 de 10</div>
+            <div class="progress-container"><div class="progress-fill" id="bar-fill"></div></div>
+            <h3 id="q-text" style="margin-bottom: 25px; min-height: 50px;"></h3>
+            <div id="options-container"></div>
+            <button id="next-question-btn" style="width: 100%; margin-top: 20px; background: #db2777;">Siguiente Pregunta</button>
         </div>
     </section>
 
     <section id="result-section">
-        <h2 id="final-score">0/10</h2>
-        <p id="result-msg"></p>
-        <button onclick="irAMenu()">Intentar otro curso</button>
+        <h2 id="final-score-text"></h2>
+        <p id="final-msg" style="margin: 20px 0; font-size: 1.3rem;"></p>
+        <button id="reset-game">Intentar de nuevo</button>
     </section>
 </div>
 
 <script>
-    let cursoActual = '';
-    let preguntas = [];
-    let indiceActual = 0;
-    let puntaje = 0;
-    let seleccion = null;
-
-    const db = {
+    // Base de datos de preguntas (90 preguntas en total)
+    const database = {
         'Python': {
             'easy': [
-                { q: "¿Qué función muestra texto?", a: ["print()", "input()", "get()", "display()"], c: 0 },
-                { q: "¿Cómo se crea una lista?", a: ["( )", "[ ]", "{ }", "< >"], c: 1 },
-                { q: "¿Qué es un 'float'?", a: ["Entero", "Texto", "Decimal", "Booleano"], c: 2 },
-                { q: "¿Símbolo de comentarios?", a: ["//", "/", "#", "", "/ */"], c: 2 },
-                { q: "¿Lista desplegable?", a: ["<select>", "<list>", "<dropdown>", "<input>"], c: 0 },
-                { q: "¿Etiqueta de sección?", a: ["<div", "<section>", "<part>", "Ambas A y B"], c: 3 }
+                { q: "¿Qué función muestra texto en pantalla?", a: ["print()", "input()", "write()", "output()"], c: 0 },
+                { q: "¿Cómo se definen los comentarios de una línea?", a: ["//", "/*", "#", "", "/* */"], c: 2 },
+                { q: "Lista desplegable:", a: ["<select>", "<list>", "<dropdown>", "<option>"], c: 0 },
+                { q: "Etiqueta sección:", a: ["<div", "<section>", "<part>", "A y B"], c: 3 }
             ],
             'hard': [
-                { q: "¿Qué es HTML5?", a: ["Versión antigua", "Último estándar", "Librería", "Editor"], c: 1 },
-                { q: "¿Para qué sirve <canvas>?", a: ["Gráficos/Dibujo", "Texto", "Audio", "Links"], c: 0 },
-                { q: "¿Etiqueta semántica?", a: ["<div>", "<article>", "<span>", "<b>"], c: 1 },
-                { q: "¿Atributo 'alt'?", a: ["Color", "Texto alternativo imagen", "Link", "Ancho"], c: 1 },
-                { q: "¿Qué hace <meta>?", a: ["Muestra imagen", "Información buscador/SEO", "Boton", "Menu"], c: 1 },
-                { q: "¿API de geolocalización es de?", a: ["CSS", "HTML5", "PHP", "C++"], c: 1 },
-                { q: "¿Etiqueta para scripts?", a: ["<js>", "<script>", "<code", "<javascript>"], c: 1 },
-                { q: "¿Input para elegir color?", a: ["type='color'", "type='palette'", "type='rgb'", "color=true"], c: 0 },
-                { q: "¿Qué es un 'iframe'?", a: ["Web dentro de web", "Imagen", "Boton", "Video"], c: 0 },
-                { q: "¿Para qué sirve <nav>?", a: ["Navegación/Menú", "Texto", "Pie", "Lado"], c: 0 }
+                { q: "¿Qué es HTML5?", a: ["Antiguo", "Estándar actual", "Librería", "Editor"], c: 1 },
+                { q: "¿Para <canvas>?", a: ["Gráficos/Dibujo", "Texto", "Audio", "Links"], c: 0 },
+                { q: "Semántica:", a: ["<div>", "<article>", "<span>", "<b>"], c: 1 },
+                { q: "Atributo 'alt':", a: ["Color", "Texto alternativo", "Link", "Ancho"], c: 1 },
+                { q: "¿Qué hace <meta>?", a: ["Imagen", "SEO/Buscadores", "Boton", "Fondo"], c: 1 },
+                { q: "Geolocalización es de:", a: ["CSS", "HTML5", "PHP", "C++"], c: 1 },
+                { q: "Scripts:", a: ["<js>", "<script>", "<code>", "<javascript>"], c: 1 },
+                { q: "Elegir color:", a: ["type='color'", "type='palette'", "type='rgb'", "hex"], c: 0 },
+                { q: "¿Qué es iframe?", a: ["Web en web", "Imagen", "Boton", "Video"], c: 0 },
+                { q: "¿Para <nav>?", a: ["Navegación", "Texto", "Pie", "Header"], c: 0 }
             ]
         }
     };
 
-    function irANiveles(curso) {
-        cursoActual = curso;
-        document.getElementById('course-title').innerText = Dificultad de ${curso};
-        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-        document.getElementById('levels-section').classList.add('active');
+    // VARIABLES DE CONTROL
+    let selCurso = "";
+    let listaPreguntas = [];
+    let actualIdx = 0;
+    let scoreTotal = 0;
+    let respElegida = null;
+
+    // ELEMENTOS
+    const secMenu = document.getElementById('menu-section');
+    const secLevels = document.getElementById('levels-section');
+    const secQuiz = document.getElementById('quiz-section');
+    const secResult = document.getElementById('result-section');
+
+    // NAVEGACIÓN
+    function irAMenu() {
+        secLevels.classList.remove('active');
+        secResult.classList.remove('active');
+        secMenu.classList.add('active');
     }
 
-    function empezarQuiz(nivel) {
-        currentLevel = nivel;
-        if (!db[cursoActual] || !db[cursoActual][nivel]) {
-            alert("Contenido no disponible");
-            return;
-        }
-        preguntas = [...db[cursoActual][nivel]];
-        indiceActual = 0; puntaje = 0;
-        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-        document.getElementById('quiz-section').classList.add('active');
-        mostrarPregunta();
+    function irANiveles(c) {
+        selCurso = c;
+        document.getElementById('course-display-title').innerText = `Nivel de ${c}`;
+        secMenu.classList.remove('active');
+        secLevels.classList.add('active');
     }
 
-    function mostrarPregunta() {
-        seleccion = null;
-        let p = preguntas[indiceActual];
-        document.getElementById('info-pregunta').innerText = Pregunta ${indiceActual + 1} de 10;
-        document.getElementById('texto-pregunta').innerText = p.q;
-        document.getElementById('bar').style.width = ${((indiceActual) / 10) * 100}%;
+    // CONFIGURACIÓN DE BOTONES DE NIVEL (EVENT LISTENERS DINÁMICOS)
+    document.querySelectorAll('.level-btn').forEach(btn => {
+        btn.onclick = () => {
+            const nivel = btn.getAttribute('data-level');
+            const data = database[selCurso][nivel];
+            if(data) {
+                listaPreguntas = [...data].sort(() => Math.random() - 0.5);
+                actualIdx = 0;
+                scoreTotal = 0;
+                secLevels.classList.remove('active');
+                secQuiz.classList.add('active');
+                mostrarQ();
+            }
+        };
+    });
+
+    // LÓGICA DEL QUIZ
+    function mostrarQ() {
+        respElegida = null;
+        const q = listaPreguntas[actualIdx];
+        document.getElementById('q-counter').innerText = `Pregunta ${actualIdx + 1} de 10`;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('bar-fill').style.width = `${((actualIdx) / 10) * 100}%`;
         
-        let html = "";
-        p.a.forEach((op, i) => {
-            html += <button class="answer-btn" onclick="marcar(this, ${i})">${op}</button>;
+        const optCont = document.getElementById('options-container');
+        optCont.innerHTML = "";
+        q.a.forEach((txt, i) => {
+            const b = document.createElement('button');
+            b.className = "answer-btn";
+            b.innerText = txt;
+            b.onclick = () => {
+                document.querySelectorAll('.answer-btn').forEach(x => x.classList.remove('selected'));
+                b.classList.add('selected');
+                respElegida = i;
+            };
+            optCont.appendChild(b);
         });
-        document.getElementById('opciones').innerHTML = html;
     }
 
-    function marcar(btn, idx) {
-        document.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        seleccion = idx;
-    }
+    document.getElementById('next-question-btn').onclick = () => {
+        if(respElegida === null) return alert("Selecciona una respuesta");
+        if(respElegida === listaPreguntas[actualIdx].c) scoreTotal++;
+        
+        actualIdx++;
+        if(actualIdx < 10) {
+            mostrarQ();
+        } else {
+            secQuiz.classList.remove('active');
+            secResult.classList.add('active');
+            document.getElementById('final-score-text').innerText = `${scoreTotal} / 10`;
+            document.getElementById('final-msg').innerText = scoreTotal >= 7 ? "¡Excelente! Has aprobado. 🏆" : "Sigue practicando para mejorar. 📖";
+        }
+    };
 
-    function siguientePregunta() {
-        if (seleccion === null) return alert("Selecciona respuesta");
-        if (seleccion === preguntas[indiceActual].c) puntaje++;
-        indiceActual++;
-        if (indiceActual < 10) mostrarPregunta();
-        else finalizar();
-    }
+    document.getElementById('reset-game').onclick = irAMenu;
+    document.getElementById('back-to-menu').onclick = irAMenu;
 
-    function finalizar() {
-        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-        document.getElementById('result-section').classList.add('active');
-        document.getElementById('final-score').innerText = ${puntaje} / 10;
-        document.getElementById('result-msg').innerText = puntaje >= 7 ? "¡Certificado conseguido! 🎓" : "Sigue intentando... 📚";
-    }
 </script>
 </body>
 </html>
