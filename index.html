@@ -3,93 +3,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Pro</title>
+    <title>Curso de Programación Interactivo</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: sans-serif; background: #1b0033; color: white; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
-        .container { width: 100%; max-width: 500px; padding: 20px; text-align: center; }
-        section { display: none; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #1b0033;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container { width: 100%; max-width: 800px; text-align: center; }
+        h1 { margin-bottom: 30px; color: #fff; font-size: 2.5rem; }
+        section { display: none; animation: fadeIn 0.5s ease; }
         section.active { display: block; }
-        .cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 20px 0; }
-        .card { background: rgba(255,255,255,0.1); border: 2px solid #7c3aed; border-radius: 10px; padding: 15px; cursor: pointer; }
-        .card * { pointer-events: none; }
-        .btn-group { display: flex; flex-direction: column; gap: 10px; }
-        button { padding: 12px; border-radius: 8px; border: none; background: #7c3aed; color: white; font-weight: bold; cursor: pointer; }
-        .ans { background: #2d0b52; border: 1px solid #7c3aed; width: 100%; text-align: left; margin-bottom: 8px; color: white; padding: 10px; }
-        .ans.selected { background: #10b981; }
-        .bar-bg { height: 8px; background: #444; border-radius: 4px; margin: 10px 0; }
-        .bar-fill { height: 100%; background: #10b981; width: 0%; transition: 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .cards-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #7c3aed;
+            border-radius: 15px;
+            padding: 25px;
+            width: 220px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .card:hover { transform: translateY(-5px); border-color: #a78bfa; background: rgba(124, 58, 237, 0.2); }
+        .icon { font-size: 3rem; margin-bottom: 15px; }
+
+        .btn-group { display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin: 20px auto; }
+        button {
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            border: none;
+            background: #7c3aed;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover:not(:disabled) { background: #6d28d9; transform: scale(1.02); }
+        button:disabled { background: #4b5563; cursor: not-allowed; }
+
+        #quiz-card { background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 20px; border: 1px solid rgba(124, 58, 237, 0.3); }
+        .answer-btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            text-align: left;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #7c3aed;
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            transition: 0.2s;
+        }
+        .answer-btn.selected { background: #10b981; border-color: #10b981; font-weight: bold; }
+        
+        .progress { height: 10px; background: #333; border-radius: 5px; margin: 20px 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: #10b981; width: 0%; transition: 0.4s; }
+        
+        #result-section h2 { font-size: 3rem; color: #a78bfa; margin-bottom: 10px; }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <section id="menu" class="active">
-        <h1>Code Quiz</h1>
-        <div class="cards">
-            <div class="card" data-c="Python">🐍<br>Py</div>
-            <div class="card" data-c="Java">☕<br>Jv</div>
-            <div class="card" data-c="HTML">🌐<br>Htm</div>
+    <h1>Curso de Programación</h1>
+
+    <section id="menu-section" class="active">
+        <h2>Selecciona un curso</h2>
+        <div class="cards-container">
+            <div class="card" onclick="irANiveles('Python')"><div class="icon">🐍</div><h3>Python</h3></div>
+            <div class="card" onclick="irANiveles('Java')"><div class="icon">☕</div><h3>Java</h3></div>
+            <div class="card" onclick="irANiveles('HTML')"><div class="icon">🌐</div><h3>HTML/CSS</h3></div>
         </div>
     </section>
-    <section id="lvls">
-        <h2 id="cur-txt"></h2>
+
+    <section id="levels-section">
+        <h2 id="course-title"></h2>
         <div class="btn-group">
-            <button class="l-bt" data-l="easy">Básico</button>
-            <button class="l-bt" data-l="medium">Medio</button>
-            <button class="l-bt" data-l="hard">Difícil</button>
+            <button onclick="empezarQuiz('easy')">Nivel Básico</button>
+            <button onclick="empezarQuiz('medium')">Nivel Medio</button>
+            <button onclick="empezarQuiz('hard')">Nivel Difícil</button>
+            <button onclick="irAMenu()" style="background: #444; margin-top: 10px;">Volver</button>
         </div>
     </section>
-    <section id="quiz">
-        <p id="q-count"></p>
-        <div class="bar-bg"><div class="bar-fill" id="fill"></div></div>
-        <h3 id="q-txt" style="margin:15px 0"></h3>
-        <div id="opts"></div>
-        <button id="next" style="width:100%;background:#db2777">Siguiente</button>
+
+    <section id="quiz-section">
+        <div id="quiz-card">
+            <div id="info-pregunta">Pregunta 1 de 10</div>
+            <div class="progress"><div class="progress-fill" id="bar"></div></div>
+            <h3 id="texto-pregunta" style="margin-bottom: 20px; min-height: 60px;"></h3>
+            <div id="opciones"></div>
+            <button id="next-btn" onclick="siguientePregunta()" style="width: 100%; margin-top: 20px; background: #db2777;">Siguiente</button>
+        </div>
     </section>
-    <section id="res">
-        <h2 id="score"></h2>
-        <button onclick="location.reload()">Reiniciar</button>
+
+    <section id="result-section">
+        <h2 id="final-score">0/10</h2>
+        <p id="result-msg"></p>
+        <button onclick="irAMenu()">Intentar otro curso</button>
     </section>
 </div>
+
 <script>
-const db = {
-    'Python': {
-        'easy': [{q:"¿Print?",a:["Imp","Lee","Var","No"],c:0},{q:"¿Comentario?",a:["//","#","/*","--"],c:1},{q:"¿Listas?",a:["()","[]","{}","<>"],c:1},{q:"¿10.5?",a:["int","str","float","bool"],c:2},{q:"¿Función?",a:["func","def","define","fn"],c:1},{q:"¿Igualdad?",a:["=","==","===","is"],c:1},{q:"¿Input?",a:["Imp","Rec","Bor","Sal"],c:1},{q:"¿Ext?",a:[".py",".jv",".js",".htm"],c:0},{q:"¿2**3?",a:["6","8","9","5"],c:1},{q:"¿While?",a:["Bucle","Var","Cua","Txt"],c:0}],
-        'medium': [{q:"¿Append?",a:["Add","Ins","App","Ext"],c:2},{q:"¿Tupla?",a:["Mut","Inm","Buc","Cla"],c:1},{q:"¿10//3?",a:["3.3","3","1","0"],c:1},{q:"¿Import?",a:["inc","req","imp","use"],c:2},{q:"¿len()?",a:["Sum","Long","Bor","Div"],c:1},{q:"¿Dict?",a:["[]","()","{}","<>"],c:2},{q:"¿None?",a:["0","F","Nul","Err"],c:2},{q:"¿Try?",a:["Err","Exc","If","Try"],c:1},{q:"¿Break?",a:["Sig","Sal","Rep","Pau"],c:1},{q:"¿Upper?",a:["Upp","Big","Cap","Up"],c:0}],
-        'hard': [{q:"¿Decor?",a:["Est","Mod","Var","Cla"],c:1},{q:"¿Yield?",a:["Sal","Gen","Sum","Par"],c:1},{q:"¿Init?",a:["Ini","Con","Var","Fin"],c:1},{q:"¿Inherit?",a:["(B)","ext","inh",":"],c:0},{q:"¿Set?",a:["Lis","Uniq","Tup","Map"],c:1},{q:"¿Lamb?",a:["Ano","Gra","RAM","Web"],c:0},{q:"¿PEP8?",a:["Ver","Sty","Vir","ID"],c:1},{q:"¿Split?",a:["Uni","Div","Cor","Mov"],c:1},{q:"¿JSON?",a:["json","js","par","dat"],c:0},{q:"¿Namespace?",a:["Rut","Nam","IP","DNS"],c:1}]
-    },
-    'Java': {
-        'easy': [{q:"¿Int?",a:["flo","int","boo","Str"],c:1},{q:"¿Print?",a:["sys","pri","log","ech"],c:0},{q:"¿Main?",a:["sta","ini","mai","go"],c:2},{q:"¿Ext?",a:[".jv",".py",".htm",".js"],c:0},{q:"¿String?",a:["Num","Txt","Bit","Boo"],c:1},{q:"¿Fin?",a:[":",";",".",","],c:1},{q:"¿Class?",a:["cla","voi","def","new"],c:0},{q:"¿Suma?",a:["+","add","&","sum"],c:0},{q:"¿If?",a:["Buc","Con","Var","Cla"],c:1},{q:"¿Comment?",a:["#","//","/*","--"],c:1}],
-        'medium': [{q:"¿Final?",a:["Ult","Con","Pri","Fin"],c:1},{q:"¿Extends?",a:["ext","imp","inh","is"],c:0},{q:"¿This?",a:["Var","Ins","Nul","Glo"],c:1},{q:"¿New?",a:["Bor","Ins","Cop","Act"],c:1},{q:"¿Public?",a:["pri","pub","pro","all"],c:1},{q:"¿Inter?",a:["Cla","Con","Var","Buc"],c:1},{q:"¿JVM?",a:["VM","Edi","Web","ID"],c:0},{q:"¿Error?",a:["try","if","err","chk"],c:0},{q:"¿Array?",a:["Din","Fix","Txt","Map"],c:1},{q:"¿Const?",a:["ini","Nam","new","cre"],c:1}],
-        'hard': [{q:"¿Polim?",a:["For","Err","Tip","Dat"],c:0},{q:"¿Over?",a:["RAM","Nam","Err","Buc"],c:1},{q:"¿Thread?",a:["Hil","Lin","Var","Cla"],c:0},{q:"¿Abstr?",a:["NoM","NoI","Txt","Fin"],c:1},{q:"¿AList?",a:["Din","Fix","Tup","int"],c:0},{q:"¿Static?",a:["Cla","Mov","Pri","Buc"],c:0},{q:"¿Garb?",a:["Lim","Bor","Vir","Deb"],c:0},{q:"¿Pack?",a:["Car","Lib","Cla","Dat"],c:1},{q:"¿Enc?",a:["Ocu","Mos","Bor","Cop"],c:0},{q:"¿JRE?",a:["Run","Edi","Jav","Lib"],c:0}]
-    },
-    'HTML': {
-        'easy': [{q:"¿HTML?",a:["ML","HT","Ho","Li"],c:0},{q:"¿Link?",a:["lin","a","hre","url"],c:1},{q:"¿H1?",a:["P","G","He","Ti"],c:1},{q:"¿Br?",a:["hr","br","lb","bk"],c:1},{q:"¿UL?",a:["Ord","Des","Ite","Lis"],c:1},{q:"¿Img?",a:["hre","lin","src","alt"],c:2},{q:"¿Body?",a:["bod","htm","hea","mai"],c:0},{q:"¿Bold?",a:["b","n","str","AyC"],c:3},{q:"¿Close?",a:["/","//","<",">"],c:0},{q:"¿P?",a:["p","pr","a","div"],c:0}],
-        'medium': [{q:"¿Form?",a:["inp","for","sel","dat"],c:1},{q:"¿Head?",a:["Vis","Met","Pie","Men"],c:1},{q:"¿Tr?",a:["td","tr","th","ro"],c:1},{q:"¿Text?",a:["tex","str","wri","are"],c:0},{q:"¿CSS?",a:["Mar","Est","Ser","Cod"],c:1},{q:"¿Vid?",a:["mov","vid","mp4","pla"],c:1},{q:"¿ID?",a:["cla","id","nam","val"],c:1},{q:"¿Com?",a:["//","#","<!-","/*"],c:2},{q:"¿Sel?",a:["Lis","Dro","Opt","Inp"],c:0},{q:"¿Div?",a:["div","sec","par","AyB"],c:1}],
-        'hard': [{q:"¿H5?",a:["Vie","Std","Lib","Edi"],c:1},{q:"¿Canv?",a:["Dib","Txt","Aud","Lin"],c:0},{q:"¿Sem?",a:["div","art","spa","b"],c:1},{q:"¿Alt?",a:["Col","Alt","Lin","Siz"],c:1},{q:"¿Meta?",a:["Img","SEO","Btn","Bg"],c:1},{q:"¿Geo?",a:["CSS","H5","PHP","C"],c:1},{q:"¿Scr?",a:["js","scr","cod","jv"],c:1},{q:"¿Col?",a:["col","pal","hex","rgb"],c:0},{q:"¿Ifra?",a:["W-W","Img","Btn","Vid"],c:0},{q:"¿Nav?",a:["Men","Txt","Pie","Hea"],c:0}]
+    let cursoActual = '';
+    let preguntas = [];
+    let indiceActual = 0;
+    let puntaje = 0;
+    let seleccion = null;
+
+    const db = {
+        'Python': {
+            'easy': [
+                { q: "¿Qué función se usa para pedir datos al usuario?", a: ["print()", "input()", "read()", "scan()"], c: 1 },
+                { q: "¿Cómo se define una variable en Python?", a: ["var x = 5", "int x = 5", "x = 5", "define x = 5"], c: 2 },
+                { q: "¿Qué tipo de dato es 'True'?", a: ["String", "Integer", "Boolean", "Float"], c: 2 },
+                { q: "¿Qué operador se usa para sumar?", a: ["+", "-", "*", "/"], c: 0 },
+                { q: "¿Cómo se inicia un condicional?", a: ["for", "while", "if", "def"], c: 2 },
+                { q: "¿Qué palabra clave define una función?", a: ["func", "def", "function", "lambda"], c: 1 },
+                { q: "¿Qué estructura se usa para repetir un bloque varias veces?", a: ["if", "loop", "for", "check"], c: 2 },
+                { q: "¿Qué símbolo indica igualdad en una comparación?", a: ["=", "==", "!=", "<>"], c: 1 },
+                { q: "¿Qué tipo de dato es 'Hola'?", a: ["Integer", "Float", "List", "String"], c: 3 },
+                { q: "¿Cuál de estos es un diccionario?", a: ["[1,2,3]", "(1,2,3)", "{'a':1}", "\"a, b, c\""], c: 2 }
+
+            ],
+            'medium': [
+                { q: "¿Qué hace la función len()?", a: ["Cuenta líneas", "Devuelve el tamaño", "Convierte a entero", "Muestra texto"], c: 1 },
+                { q: "¿Qué palabra se usa para manejar errores?", a: ["error", "try", "catch", "check"], c: 1 },
+                { q: "¿Cómo se importa una librería?", a: ["include math", "import math", "using math", "require math"], c: 1 },
+                { q: "¿Qué método agrega un elemento a una lista?", a: ["add()", "push()", "append()", "insert()"], c: 2 },
+                { q: "¿Qué devuelve range(5)?", a: ["1 a 5", "0 a 5", "0 a 4", "1 a 4"], c: 2 },
+                { q: "¿Cómo se comenta varias líneas?", a: ["//", "#", "''' '''", "/* */"], c: 2 },
+                { q: "¿Qué estructura recorre claves y valores?", a: ["list", "tuple", "dict", "set"], c: 2 },
+                { q: "¿Qué operador se usa para potencia?", a: ["^", "**", "pow", "++"], c: 1 },
+                { q: "¿Qué palabra finaliza un ciclo antes de tiempo?", a: ["stop", "exit", "break", "end"], c: 2 },
+                { q: "¿Qué tipo de dato no permite duplicados?", a: ["list", "tuple", "dict", "set"], c: 3 }
+
+            ],
+
+            'hard': [
+                { q: "¿Qué es una list comprehension?", a: ["Una función especial", "Una forma compacta de crear listas", "Un tipo de bucle infinito", "Un método de diccionarios"], c: 1 },
+                { q: "¿Qué palabra clave se usa para crear un generador?", a: ["return", "yield", "generate", "async"], c: 1 },
+                { q: "¿Qué hace *args en una función?", a: ["Recibe argumentos ilimitados como tupla", "Convierte datos a lista", "Obliga a usar enteros", "Define argumentos opcionales"], c: 0 },
+                { q: "¿Para qué sirve **kwargs?", a: ["Guardar datos en archivos", "Recibir argumentos con nombre como diccionario", "Multiplicar variables", "Evitar errores"], c: 1 },
+                { q: "¿Qué método se ejecuta automáticamente al crear un objeto?", a: ["__start__", "__init__", "__create__", "__newobj__"], c: 1 },
+                { q: "¿Qué significa que Python tenga tipado dinámico?", a: ["Los tipos no existen", "El tipo se define al ejecutar el programa", "Solo usa strings", "No permite cambiar variables"], c: 1 },
+                { q: "¿Cuál es la diferencia principal entre una lista y una tupla?", a: ["La tupla es mutable", "La lista es inmutable", "La tupla es inmutable", "No hay diferencia"], c: 2 },
+                { q: "¿Qué módulo se usa comúnmente para trabajar con fechas?", a: ["timeplus", "calendarx", "datetime", "dateutilcore"], c: 2 },
+                { q: "¿Qué hace la función map()?", a: ["Ordena elementos", "Aplica una función a cada elemento de un iterable", "Elimina duplicados", "Convierte a diccionario"], c: 1 },
+                { q: "¿Qué estructura permite manejar una excepción si ocurre un error?", a: ["do/while", "try/except", "if/error", "check/except"], c: 1 }
+
+            ]
+        },
+        'Java': {
+            'easy': [
+                { q: "¿Qué palabra clave se usa para declarar una variable?", a: ["var", "let", "int", "define"], c: 2 },
+                { q: "¿Qué método imprime texto en consola?", a: ["print()", "console.log()", "System.out.println()", "echo()"], c: 2 },
+                { q: "¿Qué símbolo se usa para terminar una sentencia?", a: [".", ",", ";", ":"], c: 2 },
+                { q: "¿Qué tipo de dato se usa para números decimales?", a: ["int", "boolean", "double", "char"], c: 2 },
+                { q: "¿Cómo se inicia el método principal?", a: ["start()", "main()", "public static void main(String[] args)", "init()"], c: 2 },
+                { q: "¿Qué estructura se usa para tomar decisiones?", a: ["loop", "if", "repeat", "switcher"], c: 1 },
+                { q: "¿Qué tipo de dato almacena verdadero o falso?", a: ["bool", "boolean", "binary", "flag"], c: 1 },
+                { q: "¿Cómo se comenta una sola línea?", a: ["<!-- -->", "#", "//", "**"], c: 2 },
+                { q: "¿Cuál es el operador para sumar?", a: ["+", "-", "*", "%"], c: 0 },
+                { q: "¿Qué palabra crea una clase?", a: ["struct", "object", "class", "define"], c: 2 }
+            ],
+
+            'medium': [
+                { q: "¿Qué bucle se ejecuta al menos una vez?", a: ["for", "while", "do-while", "loop"], c: 2 },
+                { q: "¿Qué palabra clave se usa para heredar de una clase?", a: ["inherits", "extends", "implements", "super"], c: 1 },
+                { q: "¿Qué método convierte texto a entero?", a: ["Integer.parseInt()", "toInt()", "parse()", "convertInt()"], c: 0 },
+                { q: "¿Qué colección no permite elementos duplicados?", a: ["List", "ArrayList", "Set", "Map"], c: 2 },
+                { q: "¿Qué bloque se usa para manejar excepciones?", a: ["try-catch", "if-else", "check-error", "do-catch"], c: 0 },
+                { q: "¿Qué palabra clave evita que un método sea sobrescrito?", a: ["static", "final", "const", "private"], c: 1 },
+                { q: "¿Qué interfaz se usa comúnmente para ordenar colecciones?", a: ["Runnable", "Comparator", "Serializable", "Cloneable"], c: 1 },
+                { q: "¿Qué operador compara igualdad en Java?", a: ["=", "==", "equals", "!="], c: 1 },
+                { q: "¿Qué palabra clave permite acceder al método de la superclase?", a: ["this", "parent", "base", "super"], c: 3 },
+                { q: "¿Qué tipo de dato se usa para caracteres individuales?", a: ["String", "char", "letter", "byte"], c: 1 }
+            ],
+
+            'hard': [
+                { q: "¿Qué significa JVM?", a: ["Java Variable Method", "Java Virtual Machine", "Joint Virtual Manager", "Java Verified Mode"], c: 1 },
+                { q: "¿Qué característica permite usar el mismo método con diferentes parámetros?", a: ["Encapsulación", "Sobrecarga", "Herencia", "Abstracción"], c: 1 },
+                { q: "¿Qué palabra clave se usa para definir un método que no devuelve valor?", a: ["null", "void", "empty", "static"], c: 1 },
+                { q: "¿Qué tipo de memoria gestiona el Garbage Collector?", a: ["ROM", "Stack manual", "Heap", "Cache"], c: 2 },
+                { q: "¿Qué modificador permite acceso solo dentro del mismo paquete?", a: ["public", "private", "protected", "default"], c: 3 },
+                { q: "¿Qué estructura almacena pares clave-valor?", a: ["Set", "List", "Queue", "Map"], c: 3 },
+                { q: "¿Cuál es la clase base de todas las clases en Java?", a: ["Main", "BaseObject", "Object", "Root"], c: 2 },
+                { q: "¿Qué palabra clave crea una constante?", a: ["static", "final", "const", "immutable"], c: 1 },
+                { q: "¿Qué método se llama automáticamente antes de destruir un objeto (legacy)?", a: ["destroy()", "finalize()", "delete()", "remove()"], c: 1 },
+                { q: "¿Qué pilar de la POO oculta los detalles internos?", a: ["Herencia", "Polimorfismo", "Encapsulación", "Sobrecarga"], c: 2 }
+            ]
+        },
+
+        'HTML': {
+            'easy': [
+                { q: "¿Qué significa HTML?", a: ["Hyper Trainer Marking Language", "HyperText Markup Language", "HighText Machine Language", "Hyper Transfer Markup Language"], c: 1 },
+                { q: "¿Qué etiqueta se usa para el título principal?", a: ["title", "h1", "head", "header"], c: 1 },
+                { q: "¿Qué etiqueta crea un enlace?", a: ["link", "a", "href", "url"], c: 1 },
+                { q: "¿Dónde se escribe el CSS?", a: ["Dentro de style", "En script", "En css", "Dentro de design"], c: 0 },
+                { q: "¿Qué propiedad cambia el color del texto?", a: ["font-color", "text-color", "color", "font-style"], c: 2 },
+                { q: "¿Qué etiqueta se usa para imágenes?", a: ["img", "image", "src", "pic"], c: 0 },
+                { q: "¿Qué propiedad cambia el tamaño del texto?", a: ["font-weight", "text-size", "font-size", "size"], c: 2 },
+                { q: "¿Qué símbolo se usa para clases en CSS?", a: [".", "#", "*", "@"], c: 0 },
+                { q: "¿Qué etiqueta contiene el contenido visible?", a: ["meta", "body", "main", "section"], c: 1 },
+                { q: "¿Qué propiedad pone el fondo de un elemento?", a: ["bgcolor", "background", "color-bg", "back-style"], c: 1 }
+            ],
+
+            'medium': [
+                { q: "¿Qué selector selecciona un elemento por ID?", a: [".id", "#id", "*id", "id."], c: 1 },
+                { q: "¿Qué propiedad hace un contenedor flexible?", a: ["position: flex", "display: flex", "flex: auto", "layout: flex"], c: 1 },
+                { q: "¿Qué etiqueta es semántica?", a: ["div", "span", "section", "style"], c: 2 },
+                { q: "¿Qué propiedad controla el espacio interno?", a: ["margin", "padding", "spacing", "border-gap"], c: 1 },
+                { q: "¿Qué valor de position fija un elemento en pantalla?", a: ["absolute", "relative", "fixed", "static"], c: 2 },
+                { q: "¿Qué propiedad redondea las esquinas?", a: ["corner-radius", "border-round", "border-radius", "radius"], c: 2 },
+                { q: "¿Qué etiqueta agrupa navegación?", a: ["navigate", "nav", "menu", "links"], c: 1 },
+                { q: "¿Qué propiedad controla el orden en flexbox?", a: ["align", "order", "flex-position", "index"], c: 1 },
+                { q: "¿Qué unidad es relativa al tamaño de la fuente raíz?", a: ["px", "%", "rem", "cm"], c: 2 },
+                { q: "¿Qué propiedad oculta un elemento sin eliminar su espacio?", a: ["display: none", "opacity: 0", "visibility: hidden", "hidden: true"], c: 2 }
+            ],
+
+            'hard': [
+                { q: "¿Qué modelo define cómo se calculan ancho y alto?", a: ["Render Model", "Box Model", "Layout Model", "Flex Model"], c: 1 },
+                { q: "¿Qué propiedad cambia el modelo de caja para incluir padding y borde?", a: ["box-sizing", "border-boxing", "layout-sizing", "size-mode"], c: 0 },
+                { q: "¿Qué selector tiene mayor especificidad?", a: ["Elemento", "Clase", "ID", "Universal"], c: 2 },
+                { q: "¿Qué propiedad permite superponer elementos?", a: ["layer", "z-index", "stack", "overlay"], c: 1 },
+                { q: "¿Qué atributo mejora la accesibilidad de imágenes?", a: ["title", "alt", "description", "label"], c: 1 },
+                { q: "¿Qué técnica adapta el diseño a distintos dispositivos?", a: ["Static Design", "Responsive Design", "Inline Design", "Layered Design"], c: 1 },
+                { q: "¿Qué regla se usa para aplicar estilos según el tamaño de pantalla?", a: ["@screen", "@media", "@responsive", "@device"], c: 1 },
+                { q: "¿Qué propiedad en grid define columnas?", a: ["grid-template-columns", "grid-columns", "template-cols", "grid-layout-columns"], c: 0 },
+                { q: "¿Qué valor de display crea una cuadrícula?", a: ["flex", "block", "grid", "inline-grid-only"], c: 2 },
+                { q: "¿Qué pseudo-clase aplica estilo al pasar el cursor?", a: [":focus", ":hover", ":active", ":checked"], c: 1 }
+            ]
+        }
+    };
+
+    function irANiveles(curso) {
+        cursoActual = curso;
+        document.getElementById('course-title').innerText = `Dificultad de ${curso}`;
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        document.getElementById('levels-section').classList.add('active');
     }
-};
-let sC="", sL="", qA=[], idx=0, pts=0, sel=null;
-const go=(id)=>{document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');};
-document.addEventListener('click', (e)=>{
-    const c=e.target.closest('.card');
-    if(c){sC=c.dataset.c; document.getElementById('cur-txt').innerText=sC; go('lvls');}
-    if(e.target.classList.contains('l-bt')){sL=e.target.dataset.l; qA=[...db[sC][sL]]; idx=0; pts=0; go('quiz'); render();}
-});
-function render(){
-    sel=null; const q=qA[idx];
-    document.getElementById('q-count').innerText=`${idx+1}/10`;
-    document.getElementById('q-txt').innerText=q.q;
-    document.getElementById('fill').style.width=(idx/10*100)+"%";
-    const b=document.getElementById('opts'); b.innerHTML="";
-    q.a.forEach((t,i)=>{
-        const bt=document.createElement('button'); bt.className="ans"; bt.innerText=t;
-        bt.onclick=()=>{document.querySelectorAll('.ans').forEach(x=>x.classList.remove('selected'));bt.classList.add('selected');sel=i;};
-        b.appendChild(bt);
+
+    function empezarQuiz(nivel) {
+        currentLevel = nivel;
+        if (!db[cursoActual] || !db[cursoActual][nivel]) {
+            alert("Contenido no disponible");
+            return;
+        }
+        preguntas = [...db[cursoActual][nivel]];
+        indiceActual = 0; puntaje = 0;
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        document.getElementById('quiz-section').classList.add('active');
+        mostrarPregunta();
+    }
+
+    function mostrarPregunta() {
+        seleccion = null;
+        let p = preguntas[indiceActual];
+        document.getElementById('info-pregunta').innerText = `Pregunta ${indiceActual + 1} de 10`;
+        document.getElementById('texto-pregunta').innerText = p.q;
+        document.getElementById('bar').style.width = `${((indiceActual) / 10) * 100}%`;
+        
+        let html = "";
+        p.a.forEach((op, i) => {
+            html += `<button class="answer-btn" onclick="marcar(this, ${i})">${op}</button>`;
+        });
+        document.getElementById('opciones').innerHTML = html;
+    }
+
+    function marcar(btn, idx) {
+        document.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        seleccion = idx;
+    }
+
+    function siguientePregunta() {
+        if (seleccion === null) return alert("Selecciona respuesta");
+        if (seleccion === preguntas[indiceActual].c) puntaje++;
+        indiceActual++;
+        if (indiceActual < 10) mostrarPregunta();
+        else finalizar();
+    }
+
+    function finalizar() {
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        document.getElementById('result-section').classList.add('active');
+        document.getElementById('final-score').innerText = `${puntaje} / 10`;
+        document.getElementById('result-msg').innerText = puntaje >= 7 ? "¡Certificado conseguido! 🎓" : "Sigue intentando... 📚";
+    }
+function irAMenu() {
+
+    // Quita active de todas las secciones
+    document.querySelectorAll("section").forEach(sec => {
+        sec.classList.remove("active");
     });
+
+    // Activa el menú
+    document.getElementById("menu-section").classList.add("active");
 }
-document.getElementById('next').onclick=()=>{
-    if(sel===null)return; if(sel===qA[idx].c)pts++;
-    idx++; if(idx<10)render(); else{document.getElementById('score').innerText=`${pts}/10`; go('res');}
-};
-</script></body></html>
+</script>
+</body>
+</html>
