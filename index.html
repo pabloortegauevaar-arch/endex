@@ -72,7 +72,7 @@
 
     /* ---- Auth UI ---- */
     .auth-card{
-      max-width: 420px;
+      max-width: 460px;
       margin: 0 auto;
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(124, 58, 237, 0.35);
@@ -104,6 +104,7 @@
       min-height: 20px;
       font-weight: bold;
     }
+
     #user-bar{
       display:flex;
       justify-content: space-between;
@@ -117,8 +118,17 @@
       border: 1px solid rgba(124, 58, 237, 0.25);
     }
     #user-email{ font-weight: bold; color: #ddd; }
+
     #logout-btn{ background:#ef4444; }
     #logout-btn:hover{ background:#dc2626; }
+
+    #google-btn{ background:#3b82f6; }
+    #google-btn:hover{ background:#2563eb; }
+
+    #link-pass-btn{ background:#f59e0b; }
+    #link-pass-btn:hover{ background:#d97706; }
+
+    .hidden{ display:none !important; }
   </style>
 </head>
 
@@ -126,10 +136,13 @@
   <div class="container">
     <h1>Curso de Programación</h1>
 
-    <!-- Barra usuario (se muestra cuando está logueado) -->
-    <div id="user-bar" style="display:none;">
+    <!-- Barra usuario -->
+    <div id="user-bar" class="hidden">
       <div>Sesión: <span id="user-email">—</span></div>
-      <button id="logout-btn">Cerrar sesión</button>
+      <div style="display:flex; gap:10px;">
+        <button id="link-pass-btn" class="hidden">Crear contraseña</button>
+        <button id="logout-btn">Cerrar sesión</button>
+      </div>
     </div>
 
     <!-- AUTH -->
@@ -143,12 +156,14 @@
 
         <div class="auth-actions">
           <button id="login-btn" style="flex:1; background:#22c55e;">Entrar</button>
-          <button id="signup-btn" style="flex:1; background:#3b82f6;">Registrarme</button>
+          <button id="signup-btn" style="flex:1; background:#7c3aed;">Registrarme</button>
         </div>
+
+        <button id="google-btn" style="width:100%; margin-top: 12px;">Entrar con Google</button>
 
         <div id="auth-error"></div>
         <div class="small">
-          Nota: en Firebase Console activa <b>Authentication → Email/Password</b> para que funcione.
+          En Firebase activa <b>Authentication → Email/Password</b> y <b>Google</b>.
         </div>
       </div>
     </section>
@@ -190,21 +205,22 @@
     </section>
   </div>
 
-  <!-- =======================
-       TU LÓGICA + FIREBASE
-       ======================= -->
   <script type="module">
-    // Firebase (CDN modular). Para apps sin bundler, esto es lo más práctico. :contentReference[oaicite:1]{index=1}
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
     import {
       getAuth,
       createUserWithEmailAndPassword,
       signInWithEmailAndPassword,
       signOut,
-      onAuthStateChanged
+      onAuthStateChanged,
+      GoogleAuthProvider,
+      signInWithPopup,
+      EmailAuthProvider,
+      linkWithCredential,
+      fetchSignInMethodsForEmail
     } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
-    // Tu config (tal cual te dio Firebase)
+    // ===== Firebase config =====
     const firebaseConfig = {
       apiKey: "AIzaSyBSZUyaUlEjhdc6vl-SsyZtEotOhFMNhBU",
       authDomain: "curso-programacion-d1921.firebaseapp.com",
@@ -217,8 +233,9 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
 
-    // ======= UI Helpers =======
+    // ===== UI helpers =====
     function mostrarSeccion(id) {
       document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
       document.getElementById(id).classList.add("active");
@@ -227,10 +244,14 @@
       document.getElementById("auth-error").textContent = msg || "";
     }
 
-    // ======= Auth UI =======
+    const userBar = document.getElementById("user-bar");
+    const userEmail = document.getElementById("user-email");
+    const linkBtn = document.getElementById("link-pass-btn");
+
     const emailEl = document.getElementById("email");
     const passEl = document.getElementById("password");
 
+    // ===== Auth actions =====
     document.getElementById("login-btn").addEventListener("click", async () => {
       setAuthError("");
       const email = emailEl.value.trim();
@@ -238,7 +259,7 @@
       try {
         await signInWithEmailAndPassword(auth, email, pass);
       } catch (e) {
-        setAuthError("Error al iniciar sesión: " + (e?.message || e));
+        setAuthError("Error al iniciar sesión: " + (e?.code || e?.message || e));
       }
     });
 
@@ -246,10 +267,36 @@
       setAuthError("");
       const email = emailEl.value.trim();
       const pass = passEl.value;
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setAuthError("Correo inválido. Ej: usuario@gmail.com");
+        return;
+      }
+      if (!pass || pass.length < 6) {
+        setAuthError("La contraseña debe tener mínimo 6 caracteres.");
+        return;
+      }
+
       try {
+        // Si ya existe con Google, avisa que use "Entrar con Google" y luego "Crear contraseña"
+        const methods = await fetchSignInMethodsForEmail(auth, email);
+        if (methods.includes("google.com") && !methods.includes("password")) {
+          setAuthError("Ese correo ya existe con Google. Entra con Google y luego toca 'Crear contraseña'.");
+          return;
+        }
+
         await createUserWithEmailAndPassword(auth, email, pass);
       } catch (e) {
-        setAuthError("Error al registrarte: " + (e?.message || e));
+        setAuthError("Error al registrarte: " + (e?.code || e?.message || e));
+      }
+    });
+
+    document.getElementById("google-btn").addEventListener("click", async () => {
+      setAuthError("");
+      try {
+        await signInWithPopup(auth, googleProvider);
+      } catch (e) {
+        setAuthError("Error con Google: " + (e?.code || e?.message || e));
       }
     });
 
@@ -257,23 +304,62 @@
       await signOut(auth);
     });
 
-    onAuthStateChanged(auth, (user) => {
-      const userBar = document.getElementById("user-bar");
-      const userEmail = document.getElementById("user-email");
+    // ===== Link Google + Password =====
+    linkBtn.addEventListener("click", async () => {
+      setAuthError("");
+      const user = auth.currentUser;
+      if (!user || !user.email) {
+        setAuthError("No hay usuario activo.");
+        return;
+      }
 
+      const pass = prompt("Crea una contraseña (mínimo 6 caracteres):");
+      if (!pass || pass.length < 6) {
+        setAuthError("Contraseña inválida (mínimo 6).");
+        return;
+      }
+
+      try {
+        const credential = EmailAuthProvider.credential(user.email, pass);
+        await linkWithCredential(user, credential);
+        alert("✅ Contraseña enlazada. Ahora puedes entrar con Email/Password también.");
+        linkBtn.classList.add("hidden");
+      } catch (e) {
+        setAuthError("No se pudo enlazar: " + (e?.code || e?.message || e));
+      }
+    });
+
+    // ===== Auth state =====
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
-        userBar.style.display = "flex";
+        userBar.classList.remove("hidden");
         userEmail.textContent = user.email || "(sin email)";
         mostrarSeccion("menu-section");
+
+        // Mostrar botón "Crear contraseña" solo si:
+        // - tiene Google
+        // - NO tiene password
+        try {
+          if (user.email) {
+            const methods = await fetchSignInMethodsForEmail(auth, user.email);
+            const hasGoogle = methods.includes("google.com");
+            const hasPassword = methods.includes("password");
+            if (hasGoogle && !hasPassword) linkBtn.classList.remove("hidden");
+            else linkBtn.classList.add("hidden");
+          }
+        } catch {
+          linkBtn.classList.add("hidden");
+        }
       } else {
-        userBar.style.display = "none";
+        userBar.classList.add("hidden");
         userEmail.textContent = "—";
+        linkBtn.classList.add("hidden");
         mostrarSeccion("auth-section");
       }
     });
 
     // =======================
-    // TU CÓDIGO DEL QUIZ (igualito)
+    // TU QUIZ (igual)
     // =======================
     let cursoActual = "";
     let preguntas = [];
@@ -282,7 +368,7 @@
     let seleccion = null;
     let currentLevel = "easy";
 
-    const db = {
+    const db = { /* --- MISMA BASE DE PREGUNTAS --- */
       "Python": {
         "easy": [
           { q: "¿Qué función se usa para pedir datos al usuario?", a: ["print()", "input()", "read()", "scan()"], c: 1 },
@@ -321,7 +407,6 @@
           { q: "¿Qué estructura permite manejar una excepción si ocurre un error?", a: ["do/while", "try/except", "if/error", "check/except"], c: 1 }
         ]
       },
-
       "Java": {
         "easy": [
           { q: "¿Qué palabra clave se usa para declarar una variable?", a: ["var", "let", "int", "define"], c: 2 },
@@ -360,7 +445,6 @@
           { q: "¿Qué pilar de la POO oculta los detalles internos?", a: ["Herencia", "Polimorfismo", "Encapsulación", "Sobrecarga"], c: 2 }
         ]
       },
-
       "HTML": {
         "easy": [
           { q: "¿Qué significa HTML?", a: ["Hyper Trainer Marking Language", "HyperText Markup Language", "HighText Machine Language", "Hyper Transfer Markup Language"], c: 1 },
