@@ -1,314 +1,466 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curso de Programación Interactivo</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Arial', sans-serif;
-            background: #1b0033;
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .container { width: 100%; max-width: 800px; text-align: center; }
-        h1 { margin-bottom: 30px; color: #fff; font-size: 2.5rem; }
-        section { display: none; animation: fadeIn 0.5s ease; }
-        section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Curso de Programación Interactivo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #1b0033;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .container { width: 100%; max-width: 800px; text-align: center; }
+    h1 { margin-bottom: 30px; color: #fff; font-size: 2.5rem; }
+    section { display: none; animation: fadeIn 0.5s ease; }
+    section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .cards-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-        .card {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #7c3aed;
-            border-radius: 15px;
-            padding: 25px;
-            width: 220px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .card:hover { transform: translateY(-5px); border-color: #a78bfa; background: rgba(124, 58, 237, 0.2); }
-        .icon { font-size: 3rem; margin-bottom: 15px; }
+    .cards-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid #7c3aed;
+      border-radius: 15px;
+      padding: 25px;
+      width: 220px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .card:hover { transform: translateY(-5px); border-color: #a78bfa; background: rgba(124, 58, 237, 0.2); }
+    .icon { font-size: 3rem; margin-bottom: 15px; }
 
-        .btn-group { display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin: 20px auto; }
-        button {
-            padding: 15px;
-            font-size: 1.1rem;
-            border-radius: 10px;
-            border: none;
-            background: #7c3aed;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-        button:hover:not(:disabled) { background: #6d28d9; transform: scale(1.02); }
-        button:disabled { background: #4b5563; cursor: not-allowed; }
+    .btn-group { display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin: 20px auto; }
+    button {
+      padding: 15px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      border: none;
+      background: #7c3aed;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    button:hover:not(:disabled) { background: #6d28d9; transform: scale(1.02); }
+    button:disabled { background: #4b5563; cursor: not-allowed; }
 
-        #quiz-card { background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 20px; border: 1px solid rgba(124, 58, 237, 0.3); }
-        .answer-btn {
-            display: block;
-            width: 100%;
-            margin-bottom: 10px;
-            text-align: left;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid #7c3aed;
-            padding: 15px;
-            border-radius: 8px;
-            color: white;
-            transition: 0.2s;
-        }
-        .answer-btn.selected { background: #10b981; border-color: #10b981; font-weight: bold; }
-        
-        .progress { height: 10px; background: #333; border-radius: 5px; margin: 20px 0; overflow: hidden; }
-        .progress-fill { height: 100%; background: #10b981; width: 0%; transition: 0.4s; }
-        
-        #result-section h2 { font-size: 3rem; color: #a78bfa; margin-bottom: 10px; }
-    </style>
+    #quiz-card { background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 20px; border: 1px solid rgba(124, 58, 237, 0.3); }
+    .answer-btn {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+      text-align: left;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid #7c3aed;
+      padding: 15px;
+      border-radius: 8px;
+      color: white;
+      transition: 0.2s;
+    }
+    .answer-btn.selected { background: #10b981; border-color: #10b981; font-weight: bold; }
+
+    .progress { height: 10px; background: #333; border-radius: 5px; margin: 20px 0; overflow: hidden; }
+    .progress-fill { height: 100%; background: #10b981; width: 0%; transition: 0.4s; }
+
+    #result-section h2 { font-size: 3rem; color: #a78bfa; margin-bottom: 10px; }
+
+    /* ---- Auth UI ---- */
+    .auth-card{
+      max-width: 420px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(124, 58, 237, 0.35);
+      border-radius: 18px;
+      padding: 22px;
+      text-align: left;
+    }
+    .auth-card h2{ text-align:center; margin-bottom: 14px; }
+    .auth-row{ display:flex; flex-direction:column; gap:10px; }
+    .auth-row input{
+      padding: 12px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(167, 139, 250, 0.45);
+      outline: none;
+      background: rgba(0,0,0,0.35);
+      color: white;
+      font-size: 1rem;
+    }
+    .auth-actions{ display:flex; gap:10px; margin-top: 12px; }
+    .small{
+      opacity: .9;
+      font-size: .95rem;
+      margin-top: 10px;
+      line-height: 1.3rem;
+    }
+    #auth-error{
+      margin-top: 10px;
+      color: #fca5a5;
+      min-height: 20px;
+      font-weight: bold;
+    }
+    #user-bar{
+      display:flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin: 0 auto 18px auto;
+      max-width: 800px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(124, 58, 237, 0.25);
+    }
+    #user-email{ font-weight: bold; color: #ddd; }
+    #logout-btn{ background:#ef4444; }
+    #logout-btn:hover{ background:#dc2626; }
+  </style>
 </head>
-<body>
 
-<div class="container">
+<body>
+  <div class="container">
     <h1>Curso de Programación</h1>
 
-    <section id="menu-section" class="active">
-        <h2>Selecciona un curso</h2>
-        <div class="cards-container">
-            <div class="card" onclick="irANiveles('Python')"><div class="icon">🐍</div><h3>Python</h3></div>
-            <div class="card" onclick="irANiveles('Java')"><div class="icon">☕</div><h3>Java</h3></div>
-            <div class="card" onclick="irANiveles('HTML')"><div class="icon">🌐</div><h3>HTML/CSS</h3></div>
+    <!-- Barra usuario (se muestra cuando está logueado) -->
+    <div id="user-bar" style="display:none;">
+      <div>Sesión: <span id="user-email">—</span></div>
+      <button id="logout-btn">Cerrar sesión</button>
+    </div>
+
+    <!-- AUTH -->
+    <section id="auth-section" class="active">
+      <div class="auth-card">
+        <h2>Inicia sesión</h2>
+        <div class="auth-row">
+          <input id="email" type="email" placeholder="Correo" autocomplete="email" />
+          <input id="password" type="password" placeholder="Contraseña (mínimo 6)" autocomplete="current-password" />
         </div>
+
+        <div class="auth-actions">
+          <button id="login-btn" style="flex:1; background:#22c55e;">Entrar</button>
+          <button id="signup-btn" style="flex:1; background:#3b82f6;">Registrarme</button>
+        </div>
+
+        <div id="auth-error"></div>
+        <div class="small">
+          Nota: en Firebase Console activa <b>Authentication → Email/Password</b> para que funcione.
+        </div>
+      </div>
+    </section>
+
+    <!-- MENU -->
+    <section id="menu-section">
+      <h2>Selecciona un curso</h2>
+      <div class="cards-container">
+        <div class="card" onclick="irANiveles('Python')"><div class="icon">🐍</div><h3>Python</h3></div>
+        <div class="card" onclick="irANiveles('Java')"><div class="icon">☕</div><h3>Java</h3></div>
+        <div class="card" onclick="irANiveles('HTML')"><div class="icon">🌐</div><h3>HTML/CSS</h3></div>
+      </div>
     </section>
 
     <section id="levels-section">
-        <h2 id="course-title"></h2>
-        <div class="btn-group">
-            <button onclick="empezarQuiz('easy')">Nivel Básico</button>
-            <button onclick="empezarQuiz('medium')">Nivel Medio</button>
-            <button onclick="empezarQuiz('hard')">Nivel Difícil</button>
-            <button onclick="irAMenu()" style="background: #444; margin-top: 10px;">Volver</button>
-        </div>
+      <h2 id="course-title"></h2>
+      <div class="btn-group">
+        <button onclick="empezarQuiz('easy')">Nivel Básico</button>
+        <button onclick="empezarQuiz('medium')">Nivel Medio</button>
+        <button onclick="empezarQuiz('hard')">Nivel Difícil</button>
+        <button onclick="irAMenu()" style="background: #444; margin-top: 10px;">Volver</button>
+      </div>
     </section>
 
     <section id="quiz-section">
-        <div id="quiz-card">
-            <div id="info-pregunta">Pregunta 1 de 10</div>
-            <div class="progress"><div class="progress-fill" id="bar"></div></div>
-            <h3 id="texto-pregunta" style="margin-bottom: 20px; min-height: 60px;"></h3>
-            <div id="opciones"></div>
-            <button id="next-btn" onclick="siguientePregunta()" style="width: 100%; margin-top: 20px; background: #db2777;">Siguiente</button>
-        </div>
+      <div id="quiz-card">
+        <div id="info-pregunta">Pregunta 1 de 10</div>
+        <div class="progress"><div class="progress-fill" id="bar"></div></div>
+        <h3 id="texto-pregunta" style="margin-bottom: 20px; min-height: 60px;"></h3>
+        <div id="opciones"></div>
+        <button id="next-btn" onclick="siguientePregunta()" style="width: 100%; margin-top: 20px; background: #db2777;">Siguiente</button>
+      </div>
     </section>
 
     <section id="result-section">
-        <h2 id="final-score">0/10</h2>
-        <p id="result-msg"></p>
-        <button onclick="irAMenu()">Intentar otro curso</button>
+      <h2 id="final-score">0/10</h2>
+      <p id="result-msg"></p>
+      <button onclick="irAMenu()">Intentar otro curso</button>
     </section>
-</div>
+  </div>
 
-<script>
-    let cursoActual = '';
+  <!-- =======================
+       TU LÓGICA + FIREBASE
+       ======================= -->
+  <script type="module">
+    // Firebase (CDN modular). Para apps sin bundler, esto es lo más práctico. :contentReference[oaicite:1]{index=1}
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+
+    // Tu config (tal cual te dio Firebase)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBSZUyaUlEjhdc6vl-SsyZtEotOhFMNhBU",
+      authDomain: "curso-programacion-d1921.firebaseapp.com",
+      projectId: "curso-programacion-d1921",
+      storageBucket: "curso-programacion-d1921.firebasestorage.app",
+      messagingSenderId: "40569665582",
+      appId: "1:40569665582:web:0b092ad0ce88737cdc87bf",
+      measurementId: "G-54T0S7CPBB"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // ======= UI Helpers =======
+    function mostrarSeccion(id) {
+      document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+    function setAuthError(msg) {
+      document.getElementById("auth-error").textContent = msg || "";
+    }
+
+    // ======= Auth UI =======
+    const emailEl = document.getElementById("email");
+    const passEl = document.getElementById("password");
+
+    document.getElementById("login-btn").addEventListener("click", async () => {
+      setAuthError("");
+      const email = emailEl.value.trim();
+      const pass = passEl.value;
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch (e) {
+        setAuthError("Error al iniciar sesión: " + (e?.message || e));
+      }
+    });
+
+    document.getElementById("signup-btn").addEventListener("click", async () => {
+      setAuthError("");
+      const email = emailEl.value.trim();
+      const pass = passEl.value;
+      try {
+        await createUserWithEmailAndPassword(auth, email, pass);
+      } catch (e) {
+        setAuthError("Error al registrarte: " + (e?.message || e));
+      }
+    });
+
+    document.getElementById("logout-btn").addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      const userBar = document.getElementById("user-bar");
+      const userEmail = document.getElementById("user-email");
+
+      if (user) {
+        userBar.style.display = "flex";
+        userEmail.textContent = user.email || "(sin email)";
+        mostrarSeccion("menu-section");
+      } else {
+        userBar.style.display = "none";
+        userEmail.textContent = "—";
+        mostrarSeccion("auth-section");
+      }
+    });
+
+    // =======================
+    // TU CÓDIGO DEL QUIZ (igualito)
+    // =======================
+    let cursoActual = "";
     let preguntas = [];
     let indiceActual = 0;
     let puntaje = 0;
     let seleccion = null;
+    let currentLevel = "easy";
 
     const db = {
-        'Python': {
-            'easy': [
-                { q: "¿Qué función se usa para pedir datos al usuario?", a: ["print()", "input()", "read()", "scan()"], c: 1 },
-                { q: "¿Cómo se define una variable en Python?", a: ["var x = 5", "int x = 5", "x = 5", "define x = 5"], c: 2 },
-                { q: "¿Qué tipo de dato es 'True'?", a: ["String", "Integer", "Boolean", "Float"], c: 2 },
-                { q: "¿Qué operador se usa para sumar?", a: ["+", "-", "*", "/"], c: 0 },
-                { q: "¿Cómo se inicia un condicional?", a: ["for", "while", "if", "def"], c: 2 },
-                { q: "¿Qué palabra clave define una función?", a: ["func", "def", "function", "lambda"], c: 1 },
-                { q: "¿Qué estructura se usa para repetir un bloque varias veces?", a: ["if", "loop", "for", "check"], c: 2 },
-                { q: "¿Qué símbolo indica igualdad en una comparación?", a: ["=", "==", "!=", "<>"], c: 1 },
-                { q: "¿Qué tipo de dato es 'Hola'?", a: ["Integer", "Float", "List", "String"], c: 3 },
-                { q: "¿Cuál de estos es un diccionario?", a: ["[1,2,3]", "(1,2,3)", "{'a':1}", "\"a, b, c\""], c: 2 }
+      "Python": {
+        "easy": [
+          { q: "¿Qué función se usa para pedir datos al usuario?", a: ["print()", "input()", "read()", "scan()"], c: 1 },
+          { q: "¿Cómo se define una variable en Python?", a: ["var x = 5", "int x = 5", "x = 5", "define x = 5"], c: 2 },
+          { q: "¿Qué tipo de dato es 'True'?", a: ["String", "Integer", "Boolean", "Float"], c: 2 },
+          { q: "¿Qué operador se usa para sumar?", a: ["+", "-", "*", "/"], c: 0 },
+          { q: "¿Cómo se inicia un condicional?", a: ["for", "while", "if", "def"], c: 2 },
+          { q: "¿Qué palabra clave define una función?", a: ["func", "def", "function", "lambda"], c: 1 },
+          { q: "¿Qué estructura se usa para repetir un bloque varias veces?", a: ["if", "loop", "for", "check"], c: 2 },
+          { q: "¿Qué símbolo indica igualdad en una comparación?", a: ["=", "==", "!=", "<>"], c: 1 },
+          { q: "¿Qué tipo de dato es 'Hola'?", a: ["Integer", "Float", "List", "String"], c: 3 },
+          { q: "¿Cuál de estos es un diccionario?", a: ["[1,2,3]", "(1,2,3)", "{'a':1}", "\"a, b, c\""], c: 2 }
+        ],
+        "medium": [
+          { q: "¿Qué hace la función len()?", a: ["Cuenta líneas", "Devuelve el tamaño", "Convierte a entero", "Muestra texto"], c: 1 },
+          { q: "¿Qué palabra se usa para manejar errores?", a: ["error", "try", "catch", "check"], c: 1 },
+          { q: "¿Cómo se importa una librería?", a: ["include math", "import math", "using math", "require math"], c: 1 },
+          { q: "¿Qué método agrega un elemento a una lista?", a: ["add()", "push()", "append()", "insert()"], c: 2 },
+          { q: "¿Qué devuelve range(5)?", a: ["1 a 5", "0 a 5", "0 a 4", "1 a 4"], c: 2 },
+          { q: "¿Cómo se comenta varias líneas?", a: ["//", "#", "''' '''", "/* */"], c: 2 },
+          { q: "¿Qué estructura recorre claves y valores?", a: ["list", "tuple", "dict", "set"], c: 2 },
+          { q: "¿Qué operador se usa para potencia?", a: ["^", "**", "pow", "++"], c: 1 },
+          { q: "¿Qué palabra finaliza un ciclo antes de tiempo?", a: ["stop", "exit", "break", "end"], c: 2 },
+          { q: "¿Qué tipo de dato no permite duplicados?", a: ["list", "tuple", "dict", "set"], c: 3 }
+        ],
+        "hard": [
+          { q: "¿Qué es una list comprehension?", a: ["Una función especial", "Una forma compacta de crear listas", "Un tipo de bucle infinito", "Un método de diccionarios"], c: 1 },
+          { q: "¿Qué palabra clave se usa para crear un generador?", a: ["return", "yield", "generate", "async"], c: 1 },
+          { q: "¿Qué hace *args en una función?", a: ["Recibe argumentos ilimitados como tupla", "Convierte datos a lista", "Obliga a usar enteros", "Define argumentos opcionales"], c: 0 },
+          { q: "¿Para qué sirve **kwargs?", a: ["Guardar datos en archivos", "Recibir argumentos con nombre como diccionario", "Multiplicar variables", "Evitar errores"], c: 1 },
+          { q: "¿Qué método se ejecuta automáticamente al crear un objeto?", a: ["__start__", "__init__", "__create__", "__newobj__"], c: 1 },
+          { q: "¿Qué significa que Python tenga tipado dinámico?", a: ["Los tipos no existen", "El tipo se define al ejecutar el programa", "Solo usa strings", "No permite cambiar variables"], c: 1 },
+          { q: "¿Cuál es la diferencia principal entre una lista y una tupla?", a: ["La tupla es mutable", "La lista es inmutable", "La tupla es inmutable", "No hay diferencia"], c: 2 },
+          { q: "¿Qué módulo se usa comúnmente para trabajar con fechas?", a: ["timeplus", "calendarx", "datetime", "dateutilcore"], c: 2 },
+          { q: "¿Qué hace la función map()?", a: ["Ordena elementos", "Aplica una función a cada elemento de un iterable", "Elimina duplicados", "Convierte a diccionario"], c: 1 },
+          { q: "¿Qué estructura permite manejar una excepción si ocurre un error?", a: ["do/while", "try/except", "if/error", "check/except"], c: 1 }
+        ]
+      },
 
-            ],
-            'medium': [
-                { q: "¿Qué hace la función len()?", a: ["Cuenta líneas", "Devuelve el tamaño", "Convierte a entero", "Muestra texto"], c: 1 },
-                { q: "¿Qué palabra se usa para manejar errores?", a: ["error", "try", "catch", "check"], c: 1 },
-                { q: "¿Cómo se importa una librería?", a: ["include math", "import math", "using math", "require math"], c: 1 },
-                { q: "¿Qué método agrega un elemento a una lista?", a: ["add()", "push()", "append()", "insert()"], c: 2 },
-                { q: "¿Qué devuelve range(5)?", a: ["1 a 5", "0 a 5", "0 a 4", "1 a 4"], c: 2 },
-                { q: "¿Cómo se comenta varias líneas?", a: ["//", "#", "''' '''", "/* */"], c: 2 },
-                { q: "¿Qué estructura recorre claves y valores?", a: ["list", "tuple", "dict", "set"], c: 2 },
-                { q: "¿Qué operador se usa para potencia?", a: ["^", "**", "pow", "++"], c: 1 },
-                { q: "¿Qué palabra finaliza un ciclo antes de tiempo?", a: ["stop", "exit", "break", "end"], c: 2 },
-                { q: "¿Qué tipo de dato no permite duplicados?", a: ["list", "tuple", "dict", "set"], c: 3 }
+      "Java": {
+        "easy": [
+          { q: "¿Qué palabra clave se usa para declarar una variable?", a: ["var", "let", "int", "define"], c: 2 },
+          { q: "¿Qué método imprime texto en consola?", a: ["print()", "console.log()", "System.out.println()", "echo()"], c: 2 },
+          { q: "¿Qué símbolo se usa para terminar una sentencia?", a: [".", ",", ";", ":"], c: 2 },
+          { q: "¿Qué tipo de dato se usa para números decimales?", a: ["int", "boolean", "double", "char"], c: 2 },
+          { q: "¿Cómo se inicia el método principal?", a: ["start()", "main()", "public static void main(String[] args)", "init()"], c: 2 },
+          { q: "¿Qué estructura se usa para tomar decisiones?", a: ["loop", "if", "repeat", "switcher"], c: 1 },
+          { q: "¿Qué tipo de dato almacena verdadero o falso?", a: ["bool", "boolean", "binary", "flag"], c: 1 },
+          { q: "¿Cómo se comenta una sola línea?", a: ["<!-- -->", "#", "//", "**"], c: 2 },
+          { q: "¿Cuál es el operador para sumar?", a: ["+", "-", "*", "%"], c: 0 },
+          { q: "¿Qué palabra crea una clase?", a: ["struct", "object", "class", "define"], c: 2 }
+        ],
+        "medium": [
+          { q: "¿Qué bucle se ejecuta al menos una vez?", a: ["for", "while", "do-while", "loop"], c: 2 },
+          { q: "¿Qué palabra clave se usa para heredar de una clase?", a: ["inherits", "extends", "implements", "super"], c: 1 },
+          { q: "¿Qué método convierte texto a entero?", a: ["Integer.parseInt()", "toInt()", "parse()", "convertInt()"], c: 0 },
+          { q: "¿Qué colección no permite elementos duplicados?", a: ["List", "ArrayList", "Set", "Map"], c: 2 },
+          { q: "¿Qué bloque se usa para manejar excepciones?", a: ["try-catch", "if-else", "check-error", "do-catch"], c: 0 },
+          { q: "¿Qué palabra clave evita que un método sea sobrescrito?", a: ["static", "final", "const", "private"], c: 1 },
+          { q: "¿Qué interfaz se usa comúnmente para ordenar colecciones?", a: ["Runnable", "Comparator", "Serializable", "Cloneable"], c: 1 },
+          { q: "¿Qué operador compara igualdad en Java?", a: ["=", "==", "equals", "!="], c: 1 },
+          { q: "¿Qué palabra clave permite acceder al método de la superclase?", a: ["this", "parent", "base", "super"], c: 3 },
+          { q: "¿Qué tipo de dato se usa para caracteres individuales?", a: ["String", "char", "letter", "byte"], c: 1 }
+        ],
+        "hard": [
+          { q: "¿Qué significa JVM?", a: ["Java Variable Method", "Java Virtual Machine", "Joint Virtual Manager", "Java Verified Mode"], c: 1 },
+          { q: "¿Qué característica permite usar el mismo método con diferentes parámetros?", a: ["Encapsulación", "Sobrecarga", "Herencia", "Abstracción"], c: 1 },
+          { q: "¿Qué palabra clave se usa para definir un método que no devuelve valor?", a: ["null", "void", "empty", "static"], c: 1 },
+          { q: "¿Qué tipo de memoria gestiona el Garbage Collector?", a: ["ROM", "Stack manual", "Heap", "Cache"], c: 2 },
+          { q: "¿Qué modificador permite acceso solo dentro del mismo paquete?", a: ["public", "private", "protected", "default"], c: 3 },
+          { q: "¿Qué estructura almacena pares clave-valor?", a: ["Set", "List", "Queue", "Map"], c: 3 },
+          { q: "¿Cuál es la clase base de todas las clases en Java?", a: ["Main", "BaseObject", "Object", "Root"], c: 2 },
+          { q: "¿Qué palabra clave crea una constante?", a: ["static", "final", "const", "immutable"], c: 1 },
+          { q: "¿Qué método se llama automáticamente antes de destruir un objeto (legacy)?", a: ["destroy()", "finalize()", "delete()", "remove()"], c: 1 },
+          { q: "¿Qué pilar de la POO oculta los detalles internos?", a: ["Herencia", "Polimorfismo", "Encapsulación", "Sobrecarga"], c: 2 }
+        ]
+      },
 
-            ],
-
-            'hard': [
-                { q: "¿Qué es una list comprehension?", a: ["Una función especial", "Una forma compacta de crear listas", "Un tipo de bucle infinito", "Un método de diccionarios"], c: 1 },
-                { q: "¿Qué palabra clave se usa para crear un generador?", a: ["return", "yield", "generate", "async"], c: 1 },
-                { q: "¿Qué hace *args en una función?", a: ["Recibe argumentos ilimitados como tupla", "Convierte datos a lista", "Obliga a usar enteros", "Define argumentos opcionales"], c: 0 },
-                { q: "¿Para qué sirve **kwargs?", a: ["Guardar datos en archivos", "Recibir argumentos con nombre como diccionario", "Multiplicar variables", "Evitar errores"], c: 1 },
-                { q: "¿Qué método se ejecuta automáticamente al crear un objeto?", a: ["__start__", "__init__", "__create__", "__newobj__"], c: 1 },
-                { q: "¿Qué significa que Python tenga tipado dinámico?", a: ["Los tipos no existen", "El tipo se define al ejecutar el programa", "Solo usa strings", "No permite cambiar variables"], c: 1 },
-                { q: "¿Cuál es la diferencia principal entre una lista y una tupla?", a: ["La tupla es mutable", "La lista es inmutable", "La tupla es inmutable", "No hay diferencia"], c: 2 },
-                { q: "¿Qué módulo se usa comúnmente para trabajar con fechas?", a: ["timeplus", "calendarx", "datetime", "dateutilcore"], c: 2 },
-                { q: "¿Qué hace la función map()?", a: ["Ordena elementos", "Aplica una función a cada elemento de un iterable", "Elimina duplicados", "Convierte a diccionario"], c: 1 },
-                { q: "¿Qué estructura permite manejar una excepción si ocurre un error?", a: ["do/while", "try/except", "if/error", "check/except"], c: 1 }
-
-            ]
-        },
-        'Java': {
-            'easy': [
-                { q: "¿Qué palabra clave se usa para declarar una variable?", a: ["var", "let", "int", "define"], c: 2 },
-                { q: "¿Qué método imprime texto en consola?", a: ["print()", "console.log()", "System.out.println()", "echo()"], c: 2 },
-                { q: "¿Qué símbolo se usa para terminar una sentencia?", a: [".", ",", ";", ":"], c: 2 },
-                { q: "¿Qué tipo de dato se usa para números decimales?", a: ["int", "boolean", "double", "char"], c: 2 },
-                { q: "¿Cómo se inicia el método principal?", a: ["start()", "main()", "public static void main(String[] args)", "init()"], c: 2 },
-                { q: "¿Qué estructura se usa para tomar decisiones?", a: ["loop", "if", "repeat", "switcher"], c: 1 },
-                { q: "¿Qué tipo de dato almacena verdadero o falso?", a: ["bool", "boolean", "binary", "flag"], c: 1 },
-                { q: "¿Cómo se comenta una sola línea?", a: ["<!-- -->", "#", "//", "**"], c: 2 },
-                { q: "¿Cuál es el operador para sumar?", a: ["+", "-", "*", "%"], c: 0 },
-                { q: "¿Qué palabra crea una clase?", a: ["struct", "object", "class", "define"], c: 2 }
-            ],
-
-            'medium': [
-                { q: "¿Qué bucle se ejecuta al menos una vez?", a: ["for", "while", "do-while", "loop"], c: 2 },
-                { q: "¿Qué palabra clave se usa para heredar de una clase?", a: ["inherits", "extends", "implements", "super"], c: 1 },
-                { q: "¿Qué método convierte texto a entero?", a: ["Integer.parseInt()", "toInt()", "parse()", "convertInt()"], c: 0 },
-                { q: "¿Qué colección no permite elementos duplicados?", a: ["List", "ArrayList", "Set", "Map"], c: 2 },
-                { q: "¿Qué bloque se usa para manejar excepciones?", a: ["try-catch", "if-else", "check-error", "do-catch"], c: 0 },
-                { q: "¿Qué palabra clave evita que un método sea sobrescrito?", a: ["static", "final", "const", "private"], c: 1 },
-                { q: "¿Qué interfaz se usa comúnmente para ordenar colecciones?", a: ["Runnable", "Comparator", "Serializable", "Cloneable"], c: 1 },
-                { q: "¿Qué operador compara igualdad en Java?", a: ["=", "==", "equals", "!="], c: 1 },
-                { q: "¿Qué palabra clave permite acceder al método de la superclase?", a: ["this", "parent", "base", "super"], c: 3 },
-                { q: "¿Qué tipo de dato se usa para caracteres individuales?", a: ["String", "char", "letter", "byte"], c: 1 }
-            ],
-
-            'hard': [
-                { q: "¿Qué significa JVM?", a: ["Java Variable Method", "Java Virtual Machine", "Joint Virtual Manager", "Java Verified Mode"], c: 1 },
-                { q: "¿Qué característica permite usar el mismo método con diferentes parámetros?", a: ["Encapsulación", "Sobrecarga", "Herencia", "Abstracción"], c: 1 },
-                { q: "¿Qué palabra clave se usa para definir un método que no devuelve valor?", a: ["null", "void", "empty", "static"], c: 1 },
-                { q: "¿Qué tipo de memoria gestiona el Garbage Collector?", a: ["ROM", "Stack manual", "Heap", "Cache"], c: 2 },
-                { q: "¿Qué modificador permite acceso solo dentro del mismo paquete?", a: ["public", "private", "protected", "default"], c: 3 },
-                { q: "¿Qué estructura almacena pares clave-valor?", a: ["Set", "List", "Queue", "Map"], c: 3 },
-                { q: "¿Cuál es la clase base de todas las clases en Java?", a: ["Main", "BaseObject", "Object", "Root"], c: 2 },
-                { q: "¿Qué palabra clave crea una constante?", a: ["static", "final", "const", "immutable"], c: 1 },
-                { q: "¿Qué método se llama automáticamente antes de destruir un objeto (legacy)?", a: ["destroy()", "finalize()", "delete()", "remove()"], c: 1 },
-                { q: "¿Qué pilar de la POO oculta los detalles internos?", a: ["Herencia", "Polimorfismo", "Encapsulación", "Sobrecarga"], c: 2 }
-            ]
-        },
-
-        'HTML': {
-            'easy': [
-                { q: "¿Qué significa HTML?", a: ["Hyper Trainer Marking Language", "HyperText Markup Language", "HighText Machine Language", "Hyper Transfer Markup Language"], c: 1 },
-                { q: "¿Qué etiqueta se usa para el título principal?", a: ["title", "h1", "head", "header"], c: 1 },
-                { q: "¿Qué etiqueta crea un enlace?", a: ["link", "a", "href", "url"], c: 1 },
-                { q: "¿Dónde se escribe el CSS?", a: ["Dentro de style", "En script", "En css", "Dentro de design"], c: 0 },
-                { q: "¿Qué propiedad cambia el color del texto?", a: ["font-color", "text-color", "color", "font-style"], c: 2 },
-                { q: "¿Qué etiqueta se usa para imágenes?", a: ["img", "image", "src", "pic"], c: 0 },
-                { q: "¿Qué propiedad cambia el tamaño del texto?", a: ["font-weight", "text-size", "font-size", "size"], c: 2 },
-                { q: "¿Qué símbolo se usa para clases en CSS?", a: [".", "#", "*", "@"], c: 0 },
-                { q: "¿Qué etiqueta contiene el contenido visible?", a: ["meta", "body", "main", "section"], c: 1 },
-                { q: "¿Qué propiedad pone el fondo de un elemento?", a: ["bgcolor", "background", "color-bg", "back-style"], c: 1 }
-            ],
-
-            'medium': [
-                { q: "¿Qué selector selecciona un elemento por ID?", a: [".id", "#id", "*id", "id."], c: 1 },
-                { q: "¿Qué propiedad hace un contenedor flexible?", a: ["position: flex", "display: flex", "flex: auto", "layout: flex"], c: 1 },
-                { q: "¿Qué etiqueta es semántica?", a: ["div", "span", "section", "style"], c: 2 },
-                { q: "¿Qué propiedad controla el espacio interno?", a: ["margin", "padding", "spacing", "border-gap"], c: 1 },
-                { q: "¿Qué valor de position fija un elemento en pantalla?", a: ["absolute", "relative", "fixed", "static"], c: 2 },
-                { q: "¿Qué propiedad redondea las esquinas?", a: ["corner-radius", "border-round", "border-radius", "radius"], c: 2 },
-                { q: "¿Qué etiqueta agrupa navegación?", a: ["navigate", "nav", "menu", "links"], c: 1 },
-                { q: "¿Qué propiedad controla el orden en flexbox?", a: ["align", "order", "flex-position", "index"], c: 1 },
-                { q: "¿Qué unidad es relativa al tamaño de la fuente raíz?", a: ["px", "%", "rem", "cm"], c: 2 },
-                { q: "¿Qué propiedad oculta un elemento sin eliminar su espacio?", a: ["display: none", "opacity: 0", "visibility: hidden", "hidden: true"], c: 2 }
-            ],
-
-            'hard': [
-                { q: "¿Qué modelo define cómo se calculan ancho y alto?", a: ["Render Model", "Box Model", "Layout Model", "Flex Model"], c: 1 },
-                { q: "¿Qué propiedad cambia el modelo de caja para incluir padding y borde?", a: ["box-sizing", "border-boxing", "layout-sizing", "size-mode"], c: 0 },
-                { q: "¿Qué selector tiene mayor especificidad?", a: ["Elemento", "Clase", "ID", "Universal"], c: 2 },
-                { q: "¿Qué propiedad permite superponer elementos?", a: ["layer", "z-index", "stack", "overlay"], c: 1 },
-                { q: "¿Qué atributo mejora la accesibilidad de imágenes?", a: ["title", "alt", "description", "label"], c: 1 },
-                { q: "¿Qué técnica adapta el diseño a distintos dispositivos?", a: ["Static Design", "Responsive Design", "Inline Design", "Layered Design"], c: 1 },
-                { q: "¿Qué regla se usa para aplicar estilos según el tamaño de pantalla?", a: ["@screen", "@media", "@responsive", "@device"], c: 1 },
-                { q: "¿Qué propiedad en grid define columnas?", a: ["grid-template-columns", "grid-columns", "template-cols", "grid-layout-columns"], c: 0 },
-                { q: "¿Qué valor de display crea una cuadrícula?", a: ["flex", "block", "grid", "inline-grid-only"], c: 2 },
-                { q: "¿Qué pseudo-clase aplica estilo al pasar el cursor?", a: [":focus", ":hover", ":active", ":checked"], c: 1 }
-            ]
-        }
+      "HTML": {
+        "easy": [
+          { q: "¿Qué significa HTML?", a: ["Hyper Trainer Marking Language", "HyperText Markup Language", "HighText Machine Language", "Hyper Transfer Markup Language"], c: 1 },
+          { q: "¿Qué etiqueta se usa para el título principal?", a: ["title", "h1", "head", "header"], c: 1 },
+          { q: "¿Qué etiqueta crea un enlace?", a: ["link", "a", "href", "url"], c: 1 },
+          { q: "¿Dónde se escribe el CSS?", a: ["Dentro de style", "En script", "En css", "Dentro de design"], c: 0 },
+          { q: "¿Qué propiedad cambia el color del texto?", a: ["font-color", "text-color", "color", "font-style"], c: 2 },
+          { q: "¿Qué etiqueta se usa para imágenes?", a: ["img", "image", "src", "pic"], c: 0 },
+          { q: "¿Qué propiedad cambia el tamaño del texto?", a: ["font-weight", "text-size", "font-size", "size"], c: 2 },
+          { q: "¿Qué símbolo se usa para clases en CSS?", a: [".", "#", "*", "@"], c: 0 },
+          { q: "¿Qué etiqueta contiene el contenido visible?", a: ["meta", "body", "main", "section"], c: 1 },
+          { q: "¿Qué propiedad pone el fondo de un elemento?", a: ["bgcolor", "background", "color-bg", "back-style"], c: 1 }
+        ],
+        "medium": [
+          { q: "¿Qué selector selecciona un elemento por ID?", a: [".id", "#id", "*id", "id."], c: 1 },
+          { q: "¿Qué propiedad hace un contenedor flexible?", a: ["position: flex", "display: flex", "flex: auto", "layout: flex"], c: 1 },
+          { q: "¿Qué etiqueta es semántica?", a: ["div", "span", "section", "style"], c: 2 },
+          { q: "¿Qué propiedad controla el espacio interno?", a: ["margin", "padding", "spacing", "border-gap"], c: 1 },
+          { q: "¿Qué valor de position fija un elemento en pantalla?", a: ["absolute", "relative", "fixed", "static"], c: 2 },
+          { q: "¿Qué propiedad redondea las esquinas?", a: ["corner-radius", "border-round", "border-radius", "radius"], c: 2 },
+          { q: "¿Qué etiqueta agrupa navegación?", a: ["navigate", "nav", "menu", "links"], c: 1 },
+          { q: "¿Qué propiedad controla el orden en flexbox?", a: ["align", "order", "flex-position", "index"], c: 1 },
+          { q: "¿Qué unidad es relativa al tamaño de la fuente raíz?", a: ["px", "%", "rem", "cm"], c: 2 },
+          { q: "¿Qué propiedad oculta un elemento sin eliminar su espacio?", a: ["display: none", "opacity: 0", "visibility: hidden", "hidden: true"], c: 2 }
+        ],
+        "hard": [
+          { q: "¿Qué modelo define cómo se calculan ancho y alto?", a: ["Render Model", "Box Model", "Layout Model", "Flex Model"], c: 1 },
+          { q: "¿Qué propiedad cambia el modelo de caja para incluir padding y borde?", a: ["box-sizing", "border-boxing", "layout-sizing", "size-mode"], c: 0 },
+          { q: "¿Qué selector tiene mayor especificidad?", a: ["Elemento", "Clase", "ID", "Universal"], c: 2 },
+          { q: "¿Qué propiedad permite superponer elementos?", a: ["layer", "z-index", "stack", "overlay"], c: 1 },
+          { q: "¿Qué atributo mejora la accesibilidad de imágenes?", a: ["title", "alt", "description", "label"], c: 1 },
+          { q: "¿Qué técnica adapta el diseño a distintos dispositivos?", a: ["Static Design", "Responsive Design", "Inline Design", "Layered Design"], c: 1 },
+          { q: "¿Qué regla se usa para aplicar estilos según el tamaño de pantalla?", a: ["@screen", "@media", "@responsive", "@device"], c: 1 },
+          { q: "¿Qué propiedad en grid define columnas?", a: ["grid-template-columns", "grid-columns", "template-cols", "grid-layout-columns"], c: 0 },
+          { q: "¿Qué valor de display crea una cuadrícula?", a: ["flex", "block", "grid", "inline-grid-only"], c: 2 },
+          { q: "¿Qué pseudo-clase aplica estilo al pasar el cursor?", a: [":focus", ":hover", ":active", ":checked"], c: 1 }
+        ]
+      }
     };
 
-    function irANiveles(curso) {
-        cursoActual = curso;
-        document.getElementById('course-title').innerText = `Dificultad de ${curso}`;
-        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-        document.getElementById('levels-section').classList.add('active');
-    }
+    window.irANiveles = function (curso) {
+      cursoActual = curso;
+      document.getElementById("course-title").innerText = `Dificultad de ${curso}`;
+      document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+      document.getElementById("levels-section").classList.add("active");
+    };
 
-    function empezarQuiz(nivel) {
-        currentLevel = nivel;
-        if (!db[cursoActual] || !db[cursoActual][nivel]) {
-            alert("Contenido no disponible");
-            return;
-        }
-        preguntas = [...db[cursoActual][nivel]];
-        indiceActual = 0; puntaje = 0;
-        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-        document.getElementById('quiz-section').classList.add('active');
-        mostrarPregunta();
-    }
+    window.empezarQuiz = function (nivel) {
+      currentLevel = nivel;
+      if (!db[cursoActual] || !db[cursoActual][nivel]) {
+        alert("Contenido no disponible");
+        return;
+      }
+      preguntas = [...db[cursoActual][nivel]];
+      indiceActual = 0; puntaje = 0;
+      document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+      document.getElementById("quiz-section").classList.add("active");
+      mostrarPregunta();
+    };
 
     function mostrarPregunta() {
-        seleccion = null;
-        let p = preguntas[indiceActual];
-        document.getElementById('info-pregunta').innerText = `Pregunta ${indiceActual + 1} de 10`;
-        document.getElementById('texto-pregunta').innerText = p.q;
-        document.getElementById('bar').style.width = `${((indiceActual) / 10) * 100}%`;
-        
-        let html = "";
-        p.a.forEach((op, i) => {
-            html += `<button class="answer-btn" onclick="marcar(this, ${i})">${op}</button>`;
-        });
-        document.getElementById('opciones').innerHTML = html;
+      seleccion = null;
+      const p = preguntas[indiceActual];
+      document.getElementById("info-pregunta").innerText = `Pregunta ${indiceActual + 1} de 10`;
+      document.getElementById("texto-pregunta").innerText = p.q;
+      document.getElementById("bar").style.width = `${((indiceActual) / 10) * 100}%`;
+
+      let html = "";
+      p.a.forEach((op, i) => {
+        html += `<button class="answer-btn" onclick="marcar(this, ${i})">${op}</button>`;
+      });
+      document.getElementById("opciones").innerHTML = html;
     }
 
-    function marcar(btn, idx) {
-        document.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        seleccion = idx;
-    }
+    window.marcar = function (btn, idx) {
+      document.querySelectorAll(".answer-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      seleccion = idx;
+    };
 
-    function siguientePregunta() {
-        if (seleccion === null) return alert("Selecciona respuesta");
-        if (seleccion === preguntas[indiceActual].c) puntaje++;
-        indiceActual++;
-        if (indiceActual < 10) mostrarPregunta();
-        else finalizar();
-    }
+    window.siguientePregunta = function () {
+      if (seleccion === null) return alert("Selecciona respuesta");
+      if (seleccion === preguntas[indiceActual].c) puntaje++;
+      indiceActual++;
+      if (indiceActual < 10) mostrarPregunta();
+      else finalizar();
+    };
 
     function finalizar() {
-        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-        document.getElementById('result-section').classList.add('active');
-        document.getElementById('final-score').innerText = `${puntaje} / 10`;
-        document.getElementById('result-msg').innerText = puntaje >= 7 ? "¡Certificado conseguido! 🎓" : "Sigue intentando... 📚";
+      document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+      document.getElementById("result-section").classList.add("active");
+      document.getElementById("final-score").innerText = `${puntaje} / 10`;
+      document.getElementById("result-msg").innerText = puntaje >= 7 ? "¡Certificado conseguido! 🎓" : "Sigue intentando... 📚";
     }
-function irAMenu() {
 
-    // Quita active de todas las secciones
-    document.querySelectorAll("section").forEach(sec => {
-        sec.classList.remove("active");
-    });
-
-    // Activa el menú
-    document.getElementById("menu-section").classList.add("active");
-}
-</script>
+    window.irAMenu = function () {
+      document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+      document.getElementById("menu-section").classList.add("active");
+    };
+  </script>
 </body>
 </html>
+
